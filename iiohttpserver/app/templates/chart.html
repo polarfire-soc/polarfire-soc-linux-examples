@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Monitor
+{% endblock %}
+
+{% block body %}
+    <link rel="stylesheet" href="static/css/chartist.min.css">
+    <link rel="stylesheet" href="static/css/microchip.min.css">
+
+    <script type=text/javascript src="{{url_for('static',filename='js/chartist.min.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/moment.min.js')}}"></script>
+    <script type=text/javascript src="{{url_for('static',filename='js/jquery-3.5.1.min.js')}}"></script>
+    <script>
+        function redrawFunction() {
+            var voltageOptions = {
+                showPoint: false,
+                showArea: true,
+                high: 8,
+                low: 0,
+                lineSmooth: Chartist.Interpolation.simple({
+                    divisor: 2
+                }),
+                axisX: {
+                    type: Chartist.FixedScaleAxis,
+                    divisor: 3,
+                    labelInterpolationFnc: function(value) {
+                    return moment(value).format('HH:mm:ss');
+                }
+            }
+        };
+
+        var currentOptions = {
+            showPoint: false,
+            showArea: true,
+            high: 2000,
+            low: 0,
+            lineSmooth: Chartist.Interpolation.simple({
+                divisor: 2
+            }),
+            axisX: {
+                type: Chartist.FixedScaleAxis,
+                divisor: 3,
+                labelInterpolationFnc: function(value) {
+                    return moment(value).format('HH:mm:ss');
+                }
+            }
+        };
+
+	console.log("refresh running");
+
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        $.getJSON($SCRIPT_ROOT+"/_refresh",
+            function(readings) {
+                for (var k1 in readings) {
+                    var results = readings[k1]
+                    for (var channel in results) {
+                        var chandata = results[channel]
+                             $("#channel"+channel).html(chandata.channel);
+                             $('#current'+channel).html(chandata.current + " mAmps");
+                             $('#voltage'+channel).html(chandata.voltage + " Volts");
+                             var currenthistory = chandata["current-history"]
+                             var currentTimeStamps = []
+                             for ( var historykey in currenthistory) {
+                                 var historyitem = currenthistory[historykey]
+                                 for (var timestamp in historyitem) {
+                                     // Convert timestamp for Javascript
+                                     currentTimeStamps.push( {x: new Date(timestamp*1000), y: historyitem[timestamp]} )
+                                 }
+                             }
+                             var newCurrentData = {
+                                 series: [{
+                                     name: 'current-series',
+                                     data: currentTimeStamps
+                                 }]
+                             };
+
+                             document.querySelector("#currenthistory"+channel).__chartist__.update(newCurrentData);
+
+                             var voltagehistory = chandata["voltage-history"]
+                             var voltageTimeStamps = []
+                             for ( var historykey in voltagehistory) {
+                                 var historyitem = voltagehistory[historykey]
+                                 for (var timestamp in historyitem) {
+                                     // Convert timestamp for Javascript
+                                     voltageTimeStamps.push( {x: new Date(timestamp*1000), y: historyitem[timestamp]} )
+                                 }
+                             }
+                             var newVoltageData = {
+                                 series: [{
+                                     name: 'voltage-series',
+                                     data: voltageTimeStamps
+                                 }]
+                             };
+
+                             document.querySelector("#voltagehistory"+channel).__chartist__.update(newVoltageData);
+                        }
+                    }
+                }
+            );
+        }
+    </script>
+
+    <div class="jumbotron">
+        <h1>PAC1934 Analytics</h1>
+
+        <div id="today"></div>
+        <script>
+            document.getElementById("today").innerHTML= new Date();
+        </script>
+
+        <table style="border-collapse: separate; border-spacing: 10px;" >
+            <tbody>
+                <tr>
+                    {% for reading in readings %}
+                        <td>
+                            <div id="channel{{reading['index']}}">{{reading['channel']}}</div>
+                            <div id="voltagehistory{{reading['index']}}" class="ct-chart"></div>
+                            <div id="voltage{{reading['index']}}">{{reading['voltage']}} Volts</div>
+                            <div id="currenthistory{{reading['index']}}" class="ct-chart"></div>
+                            <div id="current{{reading['index']}}">{{reading['current']}} mAmps</div>
+
+                                <!-- <script>redrawFunction()</script> -->
+                            <script>
+
+                                var voltageData = {
+                                    series: [{
+                                        name: 'voltage-series',
+                                        data: [
+                                            {% for item in reading['voltage-history'] %}
+                                                {% for timestamp in item %}
+                                                    // Convert timestamp for Javascript
+                                                    {x: new Date({{timestamp}}*1000), y: '{{item[timestamp]}}' },
+                                                {% endfor %}
+                                            {% endfor %}
+                                        ]
+                                    }]
+                                };
+
+                                var currentData = {
+                                    series: [{
+                                        name: 'current-series',
+                                        data: [
+                                            {% for item in reading['current-history'] %}
+                                                {% for timestamp in item %}
+                                                    // Convert timestamp for Javascript
+                                                    {x: new Date({{timestamp}}*1000) ,y: '{{item[timestamp]}}' },
+                                                {% endfor %}
+                                            {% endfor %}
+                                        ]
+                                    }]
+                                };
+
+                                var voltageOptions = {
+                                    showPoint: false,
+                                    showArea: true,
+                                    high: 8,
+                                    low: 0,
+                                    lineSmooth: Chartist.Interpolation.simple({
+                                        divisor: 2
+                                    }),
+                                    axisX: {
+                                        type: Chartist.FixedScaleAxis,
+                                        divisor: 3,
+                                        labelInterpolationFnc: function(value) {
+                                            return moment(value).format('HH:mm:ss');
+                                        }
+                                    }
+                                };
+
+                                var currentOptions = {
+                                    showPoint: false,
+                                    showArea: true,
+                                    high: 2000,
+                                    low: 0,
+                                    lineSmooth: Chartist.Interpolation.simple({
+                                        divisor: 2
+                                    }),
+                                    axisX: {
+                                        type: Chartist.FixedScaleAxis,
+                                        divisor: 3,
+                                        labelInterpolationFnc: function(value) {
+                                            return moment(value).format('HH:mm:ss');
+                                        }
+                                    }
+                                };
+
+                                Chartist.Line('#voltagehistory{{reading['index']}}', voltageData, voltageOptions);
+                                Chartist.Line('#currenthistory{{reading['index']}}', currentData, currentOptions);
+                            </script>
+                        </td>
+                    {% endfor %}
+		    <script>window.setInterval(redrawFunction, 1000);</script>
+                </tr>
+            </tbody>
+        </table
+    </div>
+{%endblock %}

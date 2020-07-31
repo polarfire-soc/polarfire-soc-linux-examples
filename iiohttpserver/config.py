@@ -1,0 +1,4 @@
+DEBUG = True
+TESTING = True
+
+

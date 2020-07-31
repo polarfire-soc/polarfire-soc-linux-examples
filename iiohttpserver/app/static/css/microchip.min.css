@@ -1,0 +1,49 @@
+
+<style>
+  body {
+    background-color: #222;
+    padding: 20px;
+    font-family: arial;
+  }
+
+  #chart {
+    background-color: slategrey;
+    border-radius: 10px;
+    padding-top: 10px;
+  }
+
+  #title{
+    color: slategrey;
+    margin-bottom: 10px;
+  }
+
+  /* Customizing plain css: */
+
+  /* First series - a */
+  .ct-series-a .ct-line {
+    stroke: blue;
+    stroke-width: 4px;
+  }
+  .ct-series-a .ct-point {
+    stroke: blue;
+    stroke-width: 7px;
+  }
+
+  /* Custom css for the labels */
+  #labels{
+    padding-top: 10px;
+    display: block;
+    height: 30px;
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: slategrey;
+    text-align: center;
+  }
+
+ .label-series{
+    stroke: black;
+    fill: orange;
+    stroke-width: 4px;
+  }
+</style>
