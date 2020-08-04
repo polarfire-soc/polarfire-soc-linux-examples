@@ -7,13 +7,10 @@ import fcntl
 import sys
 import time
 
-#if os.environ['COLLECTD_HOSTNAME']:
 if 'COLLECTD_HOSTNAME' in os.environ.keys():
     HOSTNAME = os.environ['COLLECTD_HOSTNAME']
 else:
     HOSTNAME = os.uname()[1]
-
-#print(HOSTNAME)
 
 if 'COLLECTD_INTERVAL' in os.environ.keys():
     INTERVAL = os.environ['COLLECTD_INTERVAL']
@@ -25,9 +22,6 @@ SENSORDIR = "/sys/bus/iio/devices/iio:device0/"
 SENSORNAME = 'microchip,pac1934'
 MAXLINES = 50
 MINLINES = 30
-
-#print(LOGDIR)
-#print(SENSORDIR)
 
 def traverse_links(filename):
     if not os.path.islink(filename):
@@ -62,9 +56,6 @@ try:
 except:
     sys.exit(0)
 
-#for file in os.listdir(SENSORDIR):
-#   print(file)
-
 if os.path.isfile(SENSORDIR+'name'):
     fd = open(SENSORDIR+'name', 'r');
     name = fd.read()
@@ -79,8 +70,6 @@ if os.path.isfile(SENSORDIR+'name'):
     # Voltage scale is not an array
     voltage_scale = 0
     for i in range (4):
-        #print(i)
-
         fd = open(SENSORDIR+'in_current{}_raw'.format(i))
         if fd:
             current[i] = fd.read()
@@ -88,7 +77,6 @@ if os.path.isfile(SENSORDIR+'name'):
             current[i] = current[i].strip()
         else:
             sys.exit(0)
-        #print('current[{}]: {}'.format(i, current[i]))
 
         fd = open(SENSORDIR+'in_current{}_scale'.format(i))
         if fd:
@@ -97,13 +85,8 @@ if os.path.isfile(SENSORDIR+'name'):
             current_scale[i] = current_scale[i].strip()
         else:
             sys.exit(0)
-        #print('current_scale[{}]: {}'.format(i, current_scale[i]))
 
         current[i] = str(float(current[i]) * float(current_scale[i]))
-
-        # TODO - Why do we need this factor?
-        current[i] = str(float(current[i]) / 10)
-        #print('current[{}]: {}'.format(i, current[i]))
 
         fd = open(SENSORDIR+'in_voltage{}_raw'.format(i))
         if fd:
@@ -123,7 +106,7 @@ if os.path.isfile(SENSORDIR+'name'):
 
         voltage[i] = str(float(voltage[i]) * float(voltage_scale))
 
-        # TODO - Why do we need this factor?
+        # convert from mV to V
         voltage[i] = str(float(voltage[i]) / 1000)
 
         print("PUTVAL {}/sensors-{}/current-channel{} interval={} N:{}".format(HOSTNAME, SENSORNAME, i, INTERVAL, current[i]))
@@ -132,7 +115,6 @@ if os.path.isfile(SENSORDIR+'name'):
     # Remove files older than 24 hours)
     old_files = get_old_files(LOGDIR, 24*3600);
     for old_file in old_files:
-        print('removing {}'.format(old_file))
         os.remove(old_file)
 
     # constantly self trim - target between 30 and 50 readings
@@ -150,7 +132,6 @@ if os.path.isfile(SENSORDIR+'name'):
             if num_lines > MAXLINES:
                 fd = open(name, "w")
                 if fd:
-                    print('truncating {}'.format(name))
                     # write the first line from its old instance
                     fd.write(lines[0])
                     # write the last 29 lines from the old instance
