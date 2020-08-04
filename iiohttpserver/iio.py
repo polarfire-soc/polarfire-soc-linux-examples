@@ -76,6 +76,8 @@ if os.path.isfile(SENSORDIR+'name'):
     current =  [ 0, 0, 0, 0 ]
     current_scale = [ 0, 0, 0, 0 ]
     voltage = [ 0, 0, 0, 0 ]
+    # Voltage scale is not an array
+    voltage_scale = 0
     for i in range (4):
         #print(i)
 
@@ -110,9 +112,19 @@ if os.path.isfile(SENSORDIR+'name'):
             voltage[i] = voltage[i].strip()
         else:
             sys.exit(0)
+
+        fd = open(SENSORDIR+'in_voltage_scale')
+        if fd:
+            voltage_scale = fd.read()
+            fd.close()
+            voltage_scale = voltage_scale.strip()
+        else:
+            sys.exit(0)
+
+        voltage[i] = str(float(voltage[i]) * float(voltage_scale))
+
         # TODO - Why do we need this factor?
-        voltage[i] = str(float(voltage[i]) / 2000)
-        #print("voltage[{}]: {}".format(i, voltage[i]))
+        voltage[i] = str(float(voltage[i]) / 1000)
 
         print("PUTVAL {}/sensors-{}/current-channel{} interval={} N:{}".format(HOSTNAME, SENSORNAME, i, INTERVAL, current[i]))
         print("PUTVAL {}/sensors-{}/voltage-channel{} interval={} N:{}".format(HOSTNAME, SENSORNAME, i, INTERVAL, voltage[i]))
