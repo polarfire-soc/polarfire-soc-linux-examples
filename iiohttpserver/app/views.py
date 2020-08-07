@@ -9,7 +9,8 @@ from flask import jsonify
 from app import app
 
 TESTING = False
-FILESTUB = '/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934/{}-channel{}*'
+HOSTNAME = os.uname()[1]
+FILESTUB = '/var/lib/collectd/'+HOSTNAME+'/sensors-microchip,pac1934/{}-channel{}*'
 
 @app.route('/')
 
@@ -61,6 +62,9 @@ def _refresh():
             csvfilename = "dummy_update.csv"
         else:
             csvfiles = glob.glob(voltagepattern)
+            if len(csvfiles) == 0:
+                app.logger.info("no data source")
+                return render_template("waiting.html")
             csvfilename = max(csvfiles, key=os.path.getctime)
 
         csvfile = open(csvfilename, 'r')
@@ -122,6 +126,9 @@ def chart():
             voltagepattern = FILESTUB.format('voltage', i)
 
             csvfiles = glob.glob(currentpattern)
+            if len(csvfiles) == 0:
+                app.logger.info("no data source")
+                return render_template("waiting.html")
             csvfilename = max(csvfiles, key=os.path.getctime)
 
         if csvfilename:
@@ -145,6 +152,9 @@ def chart():
             csvfilename = "dummy.csv"
         else:
             csvfiles = glob.glob(voltagepattern)
+            if len(csvfiles) == 0:
+                app.logger.info("no data source")
+                return render_template("waiting.html")
             csvfilename = max(csvfiles, key=os.path.getctime)
 
         csvfile = open(csvfilename, 'r')

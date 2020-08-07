@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-mkdir -p "/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934"
-chmod a+x "/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934"
-chmod a+w "/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934"
-chmod a+r "/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934"
+mkdir -p "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
+chmod a+x "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
+chmod a+w "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
+chmod a+r "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
 
 echo "stopping collectd"
 systemctl stop collectd
