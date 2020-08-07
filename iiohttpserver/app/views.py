@@ -9,7 +9,7 @@ from flask import jsonify
 from app import app
 
 TESTING = False
-FILESTUB = '/opt/collectd/var/lib/collectd/csv/localhost/sensors-microchip,pac1934/{}-channel{}*'
+FILESTUB = '/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934/{}-channel{}*'
 
 @app.route('/')
 
@@ -35,13 +35,16 @@ def _refresh():
             voltagepattern = FILESTUB.format('voltage', i)
 
             csvfiles = glob.glob(currentpattern)
+            if len(csvfiles) == 0:
+                app.logger.info("no data source")
+                return render_template("waiting.html")
             csvfilename = max(csvfiles, key=os.path.getctime)
 
         if csvfilename:
             app.logger.info(csvfilename)
         else:
             app.logger.info("no data source")
-            return
+            return render_template("waiting.html")
 
         csvfile = open(csvfilename, 'r')
         reader = csv.reader(csvfile, skipinitialspace=True)

@@ -1,0 +1,50 @@
+CHECKS
+
+1. First check that /sys/bus/iio/devices/iio:device0 is operating as expected.
+=============================================================================
+You should see that there is a file called 'name' in this directory.
+If you read that file you should see 'microchip,pac1934' in it.
+Check that you can see files such as in_voltage0_raw, in_voltage1_raw, in_voltage2_raw and in_voltage3_raw
+and that the contents of each of those files is a single floating point number.
+Similarly, check for in_current0_raw, in_current1_raw, in_current2_raw and in_current3_raw
+and that they contain a single floating point number.
+
+2. check that collectd is working properly
+==========================================
+2.1. Ensure collectd is installed.  By default it installs to /opt/collectd
+
+	If you need to build collectd:
+	wget http://collectd.org/files/collectd-5.11.0.tar.bz2
+	tar jxf collectd-5.11.0.tar.bz2
+	cd collectd-5.11.0
+	./configure
+	make
+	make install
+
+2.2. Copy collectd.conf from iiohttpserver to /opt/collectd/etc/collectd
+
+2.3. Copy iio.py from iiohttpserver to /usr/local/lib/collectd
+
+2.4. Start collectd as a background process - e.g. /opt/collectd/sbin/collectd &
+
+Now check that files are created in /opt/collectd/var/lib/collectd/csv/localhost/sensors-microchip,pac1934
+There should be 8 files - each a csv file with timestamps and readings.
+There whould be 4 files for current - one for each channel and 4 files for voltage - one for each reading.
+[Occasionally there may be more files - the pruning deletes files that are more than 24 hours old and should
+clean up the directory periodically]
+
+3. start the webserver
+======================
+3.1. Run ifconfig to determine IP address - e.g. 192.168.20.11 - you'll need this later
+
+
+3.2. Start webserver from iiohttpserver directory
+	export FLASK_APP=run.py
+	flask run --host='0.0.0.0' --port=80
+
+4. start a webbrower
+====================
+4.1. Start web browser on another machine on the local network
+
+4.2. In your web browser, navigate to 192.168.20.11
+
