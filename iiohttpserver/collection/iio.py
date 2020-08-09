@@ -118,27 +118,27 @@ if os.path.isfile(SENSORDIR+'name'):
         print("PUTVAL {}/sensors-{}/voltage-channel{} interval={} N:{}".format(HOSTNAME, SENSORNAME, i, INTERVAL, voltage[i]))
 
     # Remove files older than 24 hours)
-    #old_files = get_old_files(LOGDIR, 24*3600);
-    #for old_file in old_files:
-    #    os.remove(old_file)
+    old_files = get_old_files(LOGDIR, 24*3600);
+    for old_file in old_files:
+        os.remove(old_file)
 
     # constantly self trim - target between 30 and 50 readings
-    #for dirpath, dirnames, filenames in os.walk(LOGDIR):
-    #    for name in [traverse_links(os.path.join(dirpath, f)) for f in filenames]:
-    #        fd = open(name, "r")
-    #        if fd:
-    #            try:
-    #                lines = fd.readlines()
-    #                num_lines = len(lines)
-    #            except:
-    #                num_lines = 0
-    #            fd.close()
+    for dirpath, dirnames, filenames in os.walk(LOGDIR):
+        for name in [traverse_links(os.path.join(dirpath, f)) for f in filenames]:
+            fd = open(name, "r")
+            if fd:
+                try:
+                    lines = fd.readlines()
+                    num_lines = len(lines)
+                except:
+                    num_lines = 0
+                fd.close()
 
-    #        if num_lines > MAXLINES:
-    #            fd = open(name, "w")
-    #            if fd:
-    #                # write the first line from its old instance
-    #                fd.write(lines[0])
-    #                # write the last 29 lines from the old instance
-    #                fd.writelines(lines[-29:])
-    #            fd.close()
+            if num_lines > MAXLINES:
+                fd = open(name, "w")
+                if fd:
+                    # write the first line from its old instance
+                    fd.write(lines[0])
+                    # write the last 29 lines from the old instance
+                    fd.writelines(lines[-29:])
+                fd.close()
