@@ -1,19 +1,12 @@
 1. Ensure collectd is installed.  By default it installs to /opt/collectd
 
-2. Copy collectd.conf to /opt/collectd/etc/collectd
+2. Run ifconfig to determine IP address - e.g. 192.168.20.11 
 
-3. Copy iio.py to /usr/local/lib/collectd
-
-4. Start collectd - e.g. /opt/collectd/sbin/collectd 
-
-5. Run ifconfig to determine IP address - e.g. 192.168.20.11 
-
-6. Start webserver
-	export FLASK_APP=run.py
-	flask run --host='0.0.0.0' --port=80
+3. Start webserver
+	./run.sh
 
 6. Start web browser on another machine on the local network
 
-7. In your web browser, navigate to 192.168.20.11
+7. In your web browser, navigate to the landing page, e.g. http://192.168.20.11
 
 
