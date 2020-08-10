@@ -17,7 +17,7 @@ if 'COLLECTD_INTERVAL' in os.environ.keys():
 else:
     INTERVAL = 60
 
-LOGDIR = "/var/lib/collectd/icicle-kit-es/sensors-microchip,pac1934/"
+LOGDIR = "/var/lib/collectd/"+HOSTNAME+"/sensors-microchip,pac1934/"
 SENSORDIR = "/sys/bus/iio/devices/iio:device0/"
 SENSORNAME = 'microchip,pac1934'
 MAXLINES = 50
