@@ -5,6 +5,9 @@ chmod a+x "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
 chmod a+w "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
 chmod a+r "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
 
+echo "clearing data"
+rm "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934/"*
+
 echo "stopping collectd"
 systemctl stop collectd
 

@@ -2,13 +2,10 @@ import csv
 import glob
 import os
 
-#import logging
-
 from flask import render_template
 from flask import jsonify
 from app import app
 
-TESTING = False
 HOSTNAME = os.uname()[1]
 FILESTUB = '/var/lib/collectd/'+HOSTNAME+'/sensors-microchip,pac1934/{}-channel{}*'
 
@@ -29,17 +26,14 @@ def _refresh():
     voltage = []
 
     for i in range(4):
-        if TESTING:
-            csvfilename = "dummy_update.csv"
-        else:
-            currentpattern = FILESTUB.format('current', i)
-            voltagepattern = FILESTUB.format('voltage', i)
+        currentpattern = FILESTUB.format('current', i)
+        voltagepattern = FILESTUB.format('voltage', i)
 
-            csvfiles = glob.glob(currentpattern)
-            if len(csvfiles) == 0:
-                app.logger.info("no data source")
-                return render_template("waiting.html")
-            csvfilename = max(csvfiles, key=os.path.getctime)
+        csvfiles = glob.glob(currentpattern)
+        if len(csvfiles) == 0:
+            app.logger.info("no data source")
+            return render_template("waiting.html")
+        csvfilename = max(csvfiles, key=os.path.getctime)
 
         if csvfilename:
             app.logger.info(csvfilename)
@@ -48,35 +42,60 @@ def _refresh():
             return render_template("waiting.html")
 
         csvfile = open(csvfilename, 'r')
-        reader = csv.reader(csvfile, skipinitialspace=True)
-        thiscurrenthistory = []
-        for row in reader:
-            if row[0] == 'epoch':
-                continue
-            thiscurrenthistory.append({str((int(float(row[0])))): row[1]})
-        current.append(round(float(row[1]), 2))
-        csvfile.close()
-        currenthistory.append(thiscurrenthistory.copy())
+        if not csvfile:
+            app.logger.info("failed to open {} for reading".format(csvfilename))
+            return render_template("waiting.html")
 
-        if TESTING:
-            csvfilename = "dummy_update.csv"
+        reader = csv.reader(csvfile, skipinitialspace=True)
+        if reader:
+            app.logger.info("opened {} for reading".format(csvfilename))
         else:
-            csvfiles = glob.glob(voltagepattern)
-            if len(csvfiles) == 0:
-                app.logger.info("no data source")
-                return render_template("waiting.html")
-            csvfilename = max(csvfiles, key=os.path.getctime)
+            app.logger.info("failed to open {} for reading".format(csvfilename))
+            return render_template("waiting.html")
+        thiscurrenthistory = []
+
+        try:
+            for row in reader:
+                if row[0] == 'epoch':
+                    continue
+                thiscurrenthistory.append({str((int(float(row[0])))): row[1]})
+            current.append(round(float(row[1]), 2))
+            csvfile.close()
+            currenthistory.append(thiscurrenthistory.copy())
+        except:
+            app.logger.info("{} may be corrupt".format(csvfilename))
+            csvfile.close()
+            return render_template("waiting.html")
+
+        csvfiles = glob.glob(voltagepattern)
+        if len(csvfiles) == 0:
+            app.logger.info("no data source")
+            return render_template("waiting.html")
+        csvfilename = max(csvfiles, key=os.path.getctime)
 
         csvfile = open(csvfilename, 'r')
+        if not csvfile:
+            app.logger.info("failed to open {} for reading".format(csvfilename))
         reader = csv.reader(csvfile, skipinitialspace=True)
+        if reader:
+            app.logger.info("opened {} for reading".format(csvfilename))
+        else:
+            app.logger.info("failed to open {} for reading".format(csvfilename))
+            return render_template("waiting.html")
         thisvoltagehistory = []
-        for row in reader:
-            if row[0] == 'epoch':
-                continue
-            thisvoltagehistory.append({str((int(float(row[0])))): row[1]})
-        voltage.append(round(float(row[1]), 2))
-        csvfile.close()
-        voltagehistory.append(thisvoltagehistory.copy())
+
+        try:
+            for row in reader:
+                if row[0] == 'epoch':
+                    continue
+                thisvoltagehistory.append({str((int(float(row[0])))): row[1]})
+            voltage.append(round(float(row[1]), 2))
+            csvfile.close()
+            voltagehistory.append(thisvoltagehistory.copy())
+        except:
+            app.logger.info("{} may be corrupt".format(csvfilename))
+            csvfile.close()
+            return render_template("waiting.html")
 
     readings = [
         {
@@ -119,54 +138,75 @@ def chart():
     voltage = []
 
     for i in range(4):
-        if TESTING:
-            csvfilename = "dummy.csv"
-        else:
-            currentpattern = FILESTUB.format('current', i)
-            voltagepattern = FILESTUB.format('voltage', i)
+        currentpattern = FILESTUB.format('current', i)
+        voltagepattern = FILESTUB.format('voltage', i)
 
-            csvfiles = glob.glob(currentpattern)
-            if len(csvfiles) == 0:
-                app.logger.info("no data source")
-                return render_template("waiting.html")
-            csvfilename = max(csvfiles, key=os.path.getctime)
+        csvfiles = glob.glob(currentpattern)
+        if len(csvfiles) == 0:
+            app.logger.info("no data source")
+            return render_template("waiting.html")
+        csvfilename = max(csvfiles, key=os.path.getctime)
 
         if csvfilename:
             app.logger.info(csvfilename)
         else:
             app.logger.info("no data source")
-            return
+            return render_template("waiting.html")
 
         csvfile = open(csvfilename, 'r')
+        if not csvfile:
+            app.logger.info("failed to open {} for reading".format(csvfilename))
         reader = csv.reader(csvfile, skipinitialspace=True)
-        thiscurrenthistory = []
-        for row in reader:
-            if row[0] == 'epoch':
-                continue
-            thiscurrenthistory.append({str((int(float(row[0])))): row[1]})
-        current.append(round(float(row[1]), 2))
-        csvfile.close()
-        currenthistory.append(thiscurrenthistory.copy())
-
-        if TESTING:
-            csvfilename = "dummy.csv"
+        if reader:
+            app.logger.info("opened {} for reading".format(csvfilename))
         else:
-            csvfiles = glob.glob(voltagepattern)
-            if len(csvfiles) == 0:
-                app.logger.info("no data source")
-                return render_template("waiting.html")
-            csvfilename = max(csvfiles, key=os.path.getctime)
+            app.logger.info("failed to open {} for reading".format(csvfilename))
+            return render_template("waiting.html")
+
+        thiscurrenthistory = []
+
+        try:
+            for row in reader:
+                if row[0] == 'epoch':
+                    continue
+                thiscurrenthistory.append({str((int(float(row[0])))): row[1]})
+            current.append(round(float(row[1]), 2))
+            csvfile.close()
+            currenthistory.append(thiscurrenthistory.copy())
+        except:
+            app.logger.info("{} may be corrupt".format(csvfilename))
+            csvfile.close()
+            return render_template("waiting.html")
+
+        csvfiles = glob.glob(voltagepattern)
+        if len(csvfiles) == 0:
+            app.logger.info("no data source")
+            return render_template("waiting.html")
+        csvfilename = max(csvfiles, key=os.path.getctime)
 
         csvfile = open(csvfilename, 'r')
+        if not csvfile:
+            app.logger.info("failed to open {} for reading".format(csvfilename))
         reader = csv.reader(csvfile, skipinitialspace=True)
+        if reader:
+            app.logger.info("opened {} for reading".format(csvfilename))
+        else:
+            app.logger.info("failed to open {} for reading".format(csvfilename))
+            return render_template("waiting.html")
         thisvoltagehistory = []
-        for row in reader:
-            if row[0] == 'epoch':
-                continue
-            thisvoltagehistory.append({str((int(float(row[0])))): row[1]})
-        voltage.append(round(float(row[1]), 2))
-        csvfile.close()
-        voltagehistory.append(thisvoltagehistory.copy())
+
+        try:
+            for row in reader:
+                if row[0] == 'epoch':
+                    continue
+                thisvoltagehistory.append({str((int(float(row[0])))): row[1]})
+            voltage.append(round(float(row[1]), 2))
+            csvfile.close()
+            voltagehistory.append(thisvoltagehistory.copy())
+        except:
+            app.logger.info("{} may be corrupt".format(csvfilename))
+            csvfile.close()
+            return render_template("waiting.html")
 
     readings = [
         {
