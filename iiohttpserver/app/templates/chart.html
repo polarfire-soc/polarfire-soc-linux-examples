@@ -5,14 +5,14 @@
 
 {% block body %}
     <link rel="stylesheet" href="static/css/chartist.min.css">
-    <link rel="stylesheet" href="static/css/microchip.min.css">
     <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/microchip.min.css">
 
     <script type=text/javascript src="{{url_for('static',filename='js/chartist.min.js')}}"></script>
     <script type=text/javascript src="{{url_for('static',filename='js/moment.min.js')}}"></script>
     <script type=text/javascript src="{{url_for('static',filename='js/jquery-3.5.1.min.js')}}"></script>
     <script>
-        function redrawFunction() {
+        function callRedraw() {
             var voltageOptions = {
                 showPoint: false,
                 showArea: true,
@@ -46,8 +46,6 @@
                 }
             }
         };
-
-        console.log("refresh running");
 
         $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
         $.getJSON($SCRIPT_ROOT+"/_refresh",
@@ -109,113 +107,121 @@
             document.getElementById("today").innerHTML= new Date();
         </script>
 
-    <div class="row">
-          {% for reading in readings %}
-              <div class="col-lg-3 col-md-6">
-                  <div class="row"><div class="col">
-                      <div id="pad1{{reading['index']}}">&nbsp</div>
-                      <div id="channel{{reading['index']}}">{{reading['channel']}}</div>
-                      <div id="voltagehistory{{reading['index']}}" class="ct-chart"></div>
-                      <div id="voltage{{reading['index']}}">{{reading['voltage']}} Volts</div>
-                  </div>
-                  </div>
-                  <div class="row"><div class="col">
-                      <div id="pad1{{reading['index']}}">&nbsp</div>
-                      <div id="channel{{reading['index']}}">{{reading['channel']}}</div>
-                      <div id="currenthistory{{reading['index']}}" class="ct-chart"></div>
-                      <div id="current{{reading['index']}}">{{reading['current']}} mAmps</div>
-                  </div>
-              </div>
+        <div class="row">
+            {% for reading in readings %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="row">
+                        <div class="col">
+                            <div id="pad1{{reading['index']}}">&nbsp</div>
+                            <div id="channel{{reading['index']}}">{{reading['channel']}}</div>
+                            <div id="voltagehistory{{reading['index']}}" class="ct-chart"></div>
+                            <div id="voltage{{reading['index']}}">{{reading['voltage']}} Volts</div>
+                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div id="pad1{{reading['index']}}">&nbsp</div>
+                            <div id="channel{{reading['index']}}">{{reading['channel']}}</div>
+                            <div id="currenthistory{{reading['index']}}" class="ct-chart"></div>
+                            <div id="current{{reading['index']}}">{{reading['current']}} mAmps</div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    callRedraw()
+                </script>
+
+                <script>
+                    var voltageData = {
+                        series: [{
+                            name: 'voltage-series',
+                            data: [
+                                {% for item in reading['voltage-history'] %}
+                                    {% for timestamp in item %}
+                                        // Convert timestamp for Javascript
+                                        {x: new Date({{timestamp}}*1000), y: '{{item[timestamp]}}' },
+                                    {% endfor %}
+                                {% endfor %}
+                            ]
+                        }]
+                    };
+
+                    var currentData = {
+                        series: [{
+                            name: 'current-series',
+                            data: [
+                                {% for item in reading['current-history'] %}
+                                    {% for timestamp in item %}
+                                        // Convert timestamp for Javascript
+                                        {x: new Date({{timestamp}}*1000) ,y: '{{item[timestamp]}}' },
+                                    {% endfor %}
+                                {% endfor %}
+                            ]
+                        }]
+                    };
+
+                    var voltageOptions = {
+                        showPoint: false,
+                        showArea: true,
+                        high: 8,
+                        low: 0,
+                        lineSmooth: Chartist.Interpolation.simple({
+                            divisor: 2
+                        }),
+                        axisX: {
+                            type: Chartist.FixedScaleAxis,
+                            divisor: 3,
+                            labelInterpolationFnc: function(value) {
+                                return "";
+                            }
+                        }
+                    };
+
+                    var currentOptions = {
+                        showPoint: false,
+                        showArea: true,
+                        high: 2000,
+                        low: 0,
+                        lineSmooth: Chartist.Interpolation.simple({
+                            divisor: 2
+                        }),
+                        axisX: {
+                            type: Chartist.FixedScaleAxis,
+                            divisor: 3,
+                            labelInterpolationFnc: function(value) {
+                                return ""; // default no labels
+                            }
+                        }
+                    };
+
+                    var displaySizeOptions = [
+                        ['screen and (min-width: 1000px)', {
+                            axisX: {
+                                divisor: 2,
+                                labelInterpolationFnc: function(value) {
+                                    return moment(value).format('HH:mm:ss');
+                                }
+                            }
+                         }],
+                        ['screen and (min-width: 1500px)', {
+                            axisX: {
+                                divisor: 3,
+                                labelInterpolationFnc: function(value) {
+                                    return moment(value).format('HH:mm:ss');
+                                }
+                            }
+                        }],
+                    ];
+
+                    Chartist.Line('#voltagehistory{{reading['index']}}', voltageData, voltageOptions, displaySizeOptions);
+                    Chartist.Line('#currenthistory{{reading['index']}}', currentData, currentOptions, displaySizeOptions);
+                </script>
+            {% endfor %}
         </div>
+    </div>
 
-            <script>redrawFunction()</script>
-            <script>
-              var voltageData = {
-                series: [{
-                  name: 'voltage-series',
-                  data: [
-                    {% for item in reading['voltage-history'] %}
-                      {% for timestamp in item %}
-                        // Convert timestamp for Javascript
-                        {x: new Date({{timestamp}}*1000), y: '{{item[timestamp]}}' },
-                      {% endfor %}
-                    {% endfor %}
-                  ]
-                }]
-              };
-
-              var currentData = {
-                series: [{
-                  name: 'current-series',
-                  data: [
-                    {% for item in reading['current-history'] %}
-                      {% for timestamp in item %}
-                        // Convert timestamp for Javascript
-                        {x: new Date({{timestamp}}*1000) ,y: '{{item[timestamp]}}' },
-                      {% endfor %}
-                    {% endfor %}
-                  ]
-                }]
-              };
-
-              var voltageOptions = {
-                showPoint: false,
-                showArea: true,
-                high: 8,
-                low: 0,
-                lineSmooth: Chartist.Interpolation.simple({
-                  divisor: 2
-                }),
-                axisX: {
-                  type: Chartist.FixedScaleAxis,
-                  divisor: 3,
-                  labelInterpolationFnc: function(value) {
-                    return "";
-                  }
-                }
-          };
-
-              var currentOptions = {
-                showPoint: false,
-                showArea: true,
-                high: 2000,
-                low: 0,
-                lineSmooth: Chartist.Interpolation.simple({
-                  divisor: 2
-                }),
-                axisX: {
-                  type: Chartist.FixedScaleAxis,
-                  divisor: 3,
-                  labelInterpolationFnc: function(value) {
-                    return "";
-                  }
-                }
-              };
-
-             var breakDisplayOptions = [
-                ['screen and (min-width: 1000px)', {
-                    axisX: {
-                    divisor: 2,
-                labelInterpolationFnc: function(value) {
-                                return moment(value).format('HH:mm:ss');
-                }
-            }
-        }],
-                ['screen and (min-width: 1500px)', {
-                    axisX: {
-                    divisor: 3,
-                labelInterpolationFnc: function(value) {
-                                return moment(value).format('HH:mm:ss');
-                }
-            }
-        }],
-             ];
-
-              Chartist.Line('#voltagehistory{{reading['index']}}', voltageData, voltageOptions, breakDisplayOptions);
-              Chartist.Line('#currenthistory{{reading['index']}}', currentData, currentOptions, breakDisplayOptions);
-            </script>
-          {% endfor %}
-        </div>
-      </div>
-      <script>window.setInterval(redrawFunction, 1000);</script>
+    <script>
+        window.setInterval(callRedraw, 1000);
+    </script>
 {%endblock %}
