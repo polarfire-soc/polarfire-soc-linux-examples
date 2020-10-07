@@ -1,0 +1,18 @@
+#! /bin/ash
+
+case "$1" in
+  start)
+    echo "Starting collectdiio"
+    /usr/sbin/collectd -C /opt/microchip/iiohttpserver/collection/collectd.conf -f &
+    ;;
+  stop)
+    echo "Stopping collectdiio"
+    sleep 2
+    ;;
+  *)
+    echo "Usage: /etc/init.d/collectdiio {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
