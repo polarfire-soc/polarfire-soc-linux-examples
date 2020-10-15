@@ -19,7 +19,7 @@ export FLASK_APP='/opt/microchip/iiohttpserver/run.py'
 flask run --host="0.0.0.0" --port=80
 
 echo "stopping collectd for iio"
-/etc/init.d/iiows.sh stop
+/etc/init.d/collectdiio stop
 
 echo "restarting collectd"
 /etc/init.d/S90collectd start
