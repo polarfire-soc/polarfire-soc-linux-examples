@@ -20,8 +20,6 @@
 #include <stdio.h>
 #include <linux/can.h>
 
-#define UIO_DEVICE	"/dev/uio0"
-
 #define NUM_MSGS	(1)
 
 #define NUM_RX_MAILBOXES (32)
@@ -119,7 +117,14 @@ struct can_device {
 	struct can_rxmsg rxmsg[NUM_RX_MAILBOXES];
 };
 
+#define SYSFS_PATH_LEN		(128)
+#define ID_STR_LEN		(32)
+#define UIO_DEVICE_PATH_LEN	(32)
+#define NUM_UIO_DEVICES		(32)
+
 uint32_t verbose = 0;
+char uio_id_str[] = "mss_can0";
+char sysfs_template[] = "/sys/class/uio/uio%d/%s";
 
 int can_init(volatile struct can_device * dev, uint32_t bitrate)
 {
@@ -328,7 +333,33 @@ int wait_for_interrupt(int fd, volatile struct can_device * dev)
 	 return ret;
 }
 
-uint32_t get_memory_size(char *sysfs_path)
+int get_uio_device(char * id)
+{
+	FILE *fp;
+	int i;
+	int len;
+	char file_id[ID_STR_LEN];
+	char sysfs_path[SYSFS_PATH_LEN];
+
+	for (i = 0; i < NUM_UIO_DEVICES; i++) {
+		snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, i, "/name");
+		fp = fopen(sysfs_path, "r");
+		if (fp == NULL)
+			break;
+
+		fscanf(fp, "%32s", file_id);
+		len = strlen(id);
+		if (len > ID_STR_LEN-1)
+			len = ID_STR_LEN-1;
+		if (strncmp(file_id, id, len) == 0) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+uint32_t get_memory_size(char *sysfs_path, char *uio_device)
 {
 	FILE *fp;
 	uint32_t sz;
@@ -339,7 +370,7 @@ uint32_t get_memory_size(char *sysfs_path)
 	 */
 	fp = fopen(sysfs_path, "r");
 	if (fp == NULL) {
-		fprintf(stderr, "unable to determine size for %s\n", UIO_DEVICE);
+		fprintf(stderr, "unable to determine size for %s\n", uio_device);
 		exit(0);
 	}
 
@@ -352,6 +383,8 @@ int main(int argc, char *argv[])
 {
 	int ret = 0;
 	int uiofd;
+	char uio_device[UIO_DEVICE_PATH_LEN];
+	char sysfs_path[SYSFS_PATH_LEN];
 	uint32_t mmap_size;
 	volatile struct can_device * dev;
 	struct mss_can_filter filter;
@@ -367,30 +400,42 @@ int main(int argc, char *argv[])
 	};
 	uint8_t n_msgs = NUM_MSGS;
 	int i;
+	int index;
 
-	uiofd = open(UIO_DEVICE, O_RDWR);
-	if(uiofd < 0) {
-		fprintf(stderr, "cannot open %s: %s\n", UIO_DEVICE, strerror(errno));
+	printf("locating device for %s\n", uio_id_str);
+        index = get_uio_device(uio_id_str);
+	if (index < 0) {
+		fprintf(stderr, "can't locate uio device for %s\n", uio_id_str);
 		return -1;
-	} else {
-		printf("opened %s (r,w)\n", UIO_DEVICE);
 	}
 
-	mmap_size = get_memory_size("/sys/class/uio/uio0/maps/map0/size");
+	snprintf(uio_device, UIO_DEVICE_PATH_LEN, "/dev/uio%d", index);
+	printf("located %s\n", uio_device);
+
+	uiofd = open(uio_device, O_RDWR);
+	if(uiofd < 0) {
+		fprintf(stderr, "cannot open %s: %s\n", uio_device, strerror(errno));
+		return -1;
+	} else {
+		printf("opened %s (r,w)\n", uio_device);
+	}
+
+	snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, index, "maps/map0/size");
+	mmap_size = get_memory_size(sysfs_path, uio_device);
 	if (mmap_size == 0) {
-		fprintf(stderr, "bad memory size for %s\n", UIO_DEVICE);
+		fprintf(stderr, "bad memory size for %s\n", uio_device);
 		return -1;
 	}
 
 	dev = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uiofd, 0);
 	if (dev == MAP_FAILED) {
-		fprintf(stderr, "cannot mmap %s: %s\n", UIO_DEVICE, strerror(errno));
+		fprintf(stderr, "cannot mmap %s: %s\n", uio_device, strerror(errno));
 		return -1;
 	} else {
-		printf("mapped 0x%x bytes for %s\n", mmap_size, UIO_DEVICE);
+		printf("mapped 0x%x bytes for %s\n", mmap_size, uio_device);
 	}
 
-	printf("setting can device at %s into loopback mode\n", UIO_DEVICE);
+	printf("setting can device at %s into loopback mode\n", uio_device);
 	can_init(dev, bitrate);
 	can_set_mode(dev, CAN_MODE_INT_LOOPBACK);
 	can_start(dev);
@@ -424,8 +469,8 @@ int main(int argc, char *argv[])
 		;
 
 	ret = munmap((void *)dev, mmap_size);
-	printf("unmapped %s\n", UIO_DEVICE);
+	printf("unmapped %s\n", uio_device);
 	ret = close(uiofd);
-	printf("closed %s\n", UIO_DEVICE);
+	printf("closed %s\n", uio_device);
 	return ret;
 }
