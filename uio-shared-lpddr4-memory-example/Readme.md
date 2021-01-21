@@ -52,16 +52,16 @@ Ensure to follow the documentation provided on [Updating PolarFire SoC Icicle-Ki
 
 ## Running the User Application
 
-The user application (uio_dma_interrupt) is available under /opt/microchip/apps directory in rootfs.
+The user application (uio_dma_interrupt) is available under /opt/microchip/uio_dma directory in rootfs.
 
 ```
-root@icicle-kit-es:~# cd /opt/microchip/apps/  
+root@icicle-kit-es:~# cd /opt/microchip/uio_dma/  
 ```
 To run the application, follow these steps:
 1. Type the ./uio_dma_interrupt command and Press Enter to execute the application.
 
 ```
-root@icicle-kit-es:/opt/microchip/apps# ./uio_dma_interrupt
+root@icicle-kit-es:/opt/microchip/uio_dma# ./uio_dma_interrupt
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
@@ -80,7 +80,7 @@ opened /dev/uio2 (r,w)
    After successful completion of memory test on LSRAM, "LSRAM memory test passed successfully" message is displayed on console.
 
 ```
-root@icicle-kit-es:/opt/microchip/apps# ./uio_dma_interrupt
+root@icicle-kit-es:/opt/microchip/uio_dma# ./uio_dma_interrupt
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
@@ -114,7 +114,7 @@ Comparing data
 3. Enter 2 to perform data transfer from LSRAM to uncached LPDDR4 memory region using Fabric DMA controller:
 
 ```
-root@icicle-kit-es:/opt/microchip/apps# ./uio_dma_interrupt
+root@icicle-kit-es:/opt/microchip/uio_dma# ./uio_dma_interrupt
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
