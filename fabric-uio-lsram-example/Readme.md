@@ -29,18 +29,18 @@ Ensure to follow the documentation provided on [Updating PolarFire SoC Icicle-Ki
 
 ## Running the User Application
 
-The LSRAM user application (LSRAM_read_write) is available under /opt/microchip/apps directory in rootfs.
+The LSRAM user application (LSRAM_read_write) is available under /opt/microchip/apps/lsram directory in rootfs.
 
 
 ```
-root@icicle-kit-es:~# cd /opt/microchip/apps/
+root@icicle-kit-es:~# cd /opt/microchip/apps/lsram/
 ```
 To run the application, follow these steps:
 1. Type the ./LSRAM_read_write command and Press Enter to execute the application.
 
 
 ```
-root@icicle-kit-es:/opt/microchip/apps# ./LSRAM_read_write
+root@icicle-kit-es:/opt/microchip/apps/lsram# ./LSRAM_read_write
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
@@ -55,7 +55,7 @@ opened /dev/uio0 (r,w)
 
 
 ```
-root@icicle-kit-es:/opt/microchip/apps# ./LSRAM_read_write
+root@icicle-kit-es:/opt/microchip/apps/lsram# ./LSRAM_read_write
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
