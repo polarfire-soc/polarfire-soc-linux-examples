@@ -1,0 +1,163 @@
+# Accessing shared LPDDR4 Memory from Fabric and Linux User Application
+
+## Objective
+
+Using this application, a shared uncached LPDDR4 memory space is accessed by  linux user application using UIO framework and fabric. 
+
+
+## Description
+
+In the Libero design, fabric LSRAM and fabric DMA Controller are interfaced to MSS via FIC. The shared LPDDR4 memory region (0XC0000000-0xC000FFFF) is accessed via  uncached path for fabric as shown in following figure. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
+
+![](./images/Libero_dis.png)
+
+The Microchip PolarFire SoC Yocto BSP includes the following support to access the uncached LPDDR4 region from user space.
+
+- User application to perform data transfers from LSRAM to LPDDR4 using uio-dev node (/dev/uio).
+- A device tree node (uio-generic) is added for LSRAM and uncached LPDDR4 memory addresses in the device tree file. 
+- A device tree node (uio-generic) is added for DMA Controller memory address in the device tree file.
+- A driver for Fabric DMA controller is added in the uio framework to handle DMA interrupt.
+- UIO framework with DMA support is enabled in the Linux configuration file (defconfig).
+
+The following table lists the addresses and sizes included in device tree nodes based on ICICLE Kit Reference Design.
+
+| Component | Start Addr | Size |
+| --- | --- | --- |
+| LSRAM | 0x61000000 | 64 K |
+| LPDDR4 | 0xC0000000 | 64 K |
+| DMA Controller | 0x60020000 | 4 K |
+
+The C application includes the following DMA register configuration to initiate data transfers.
+
+- Source address register (LSRAM)
+- Destination address register (LPDDR4)
+- Byte count register
+- Descriptor0 configuration register
+- Interrupt mask register (Configures Interrupt)
+- Start operation Resister (starts DMA transfer)
+
+The C application waits for the interrupt assertion and validates the data once the DMA transfer is completed. 
+
+## Hardware Requirements
+
+- ICICLE Kit (MPFS250T_ES-FCVG484E)
+- Host PC - Windows 10 OS
+
+## Pre-Requisite
+
+Ensure to follow the documentation provided on [Updating PolarFire SoC Icicle-Kit FPGA Design and Linux Image](https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md) and complete the following steps:
+1. Programming the ICICLE KIT reference design
+2. Writing the Pre-built Linux Image to eMMC or SD
+3. Initiating Linux boot
+
+## Running the User Application
+
+The user application (uio_dma_interrupt) is available under /opt/microchip/apps directory in rootfs.
+
+```
+root@icicle-kit-es:~# cd /opt/microchip/apps/  
+```
+To run the application, follow these steps:
+1. Type the ./uio_dma_interrupt command and Press Enter to execute the application.
+
+```
+root@icicle-kit-es:/opt/microchip/apps# ./uio_dma_interrupt
+locating device for uio_lpddr4
+located /dev/uio0
+opened /dev/uio0 (r,w)
+locating device for mss_dma0
+located /dev/uio2
+opened /dev/uio2 (r,w)
+
+         # Choose one of  the following options:
+         Enter 1 to perform memory test on LSRAM
+         Enter 2 to perform DMA transfer from LSRAM to uncached LPDDR4 region
+         Enter 3 to Exit  
+```
+
+2. Enter 1 to perform memory test on LSRAM.
+
+   After successful completion of memory test on LSRAM, "LSRAM memory test passed successfully" message is displayed on console.
+
+```
+root@icicle-kit-es:/opt/microchip/apps# ./uio_dma_interrupt
+locating device for uio_lpddr4
+located /dev/uio0
+opened /dev/uio0 (r,w)
+locating device for mss_dma0
+located /dev/uio2
+opened /dev/uio2 (r,w)
+
+         # Choose one of  the following options:
+         Enter 1 to perform memory test on LSRAM
+         Enter 2 to transfer data from LSRAM to uncached LPDD4 via DMA
+         Enter 3 to Exit
+1
+
+Writing incremental pattern starting from address 0x61000000
+
+Reading data  starting from address 0x61000000
+
+Comparing data
+..............................................................................
+
+
+**** LSRAM memory test passed successfully *****
+
+
+         # Choose one of  the following options:
+         Enter 1 to perform memory test on LSRAM
+         Enter 2 to transfer data from LSRAM to LPDD4 via DMA access
+         Enter 3 to Exit
+```
+
+3. Enter 2 to perform data transfer from LSRAM to uncached LPDDR4 memory region using Fabric DMA controller:
+
+```
+root@icicle-kit-es:/opt/microchip/apps# ./uio_dma_interrupt
+locating device for uio_lpddr4
+located /dev/uio0
+opened /dev/uio0 (r,w)
+locating device for mss_dma0
+located /dev/uio2
+opened /dev/uio2 (r,w)
+
+         # Choose one of  the following options:
+         Enter 1 to perform memory test on LSRAM
+         Enter 2 to transfer data from LSRAM to uncached LPDD4 via DMA
+         Enter 3 to Exit
+2
+
+Initialized LSRAM (64KB) with incremental pattern.
+Fabric DMA controller configured for LSRAM to LPDDR4 data transfer.
+        Source Address (LSRAM) - 0x61000000
+        Destination Address (LPDDR4) - 0xc0000000
+
+        Byte count - 0x10000
+
+DMA Transfer Initiated...
+
+DMA Transfer completed and interrupt generated.
+
+Cleared DMA interrupt.
+
+Comparing LSRAM data with LPDDR4 data....
+
+***** Data Verification Passed *****
+
+Displaying interrupt count by executing "cat /proc/interrupts":
+
+(Show the output for one interrupt)
+
+
+
+         # Choose one of  the following options:
+         Enter 1 to perform memory test on LSRAM
+         Enter 2 to transfer data from LSRAM to uncached LPDD4 via DMA
+         Enter 3 to Exit
+```
+
+4. If you perform option 2 again, the interrupt count should be incremented.
+
+5. Enter 3 to exit the application.
+
