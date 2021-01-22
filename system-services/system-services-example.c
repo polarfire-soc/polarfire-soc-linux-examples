@@ -2,7 +2,7 @@
 /*
  * MSS system services example for the Microchip PolarFire SoC
  *
- * Copyright (c) 2021 Microchip Corporation. All rights reserved.
+ * Copyright (c) 2021 Microchip Technology Inc. All rights reserved.
  */
 
 #include <stdio.h>
