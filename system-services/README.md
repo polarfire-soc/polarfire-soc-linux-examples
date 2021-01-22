@@ -1,6 +1,6 @@
-The test application will be installed to /opt/microchip/system-services/system-services-example
+# PolarFire SoC System Services Examples
 
-It contains a proof of concept for acquiring:   
+This test application contains a proof of concept for acquiring:   
 - the board serial number
 - the fpga digest
 - a constant stream of output from the rng device
@@ -16,4 +16,3 @@ b - to show the fpga digest
 c - to cat hwrng, until ctrl+c
 e - to exit this program
 ```
-

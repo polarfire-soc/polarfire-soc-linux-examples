@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: MIT
+/*
+ * MSS system services example for the Microchip PolarFire SoC
+ *
+ * Copyright (c) 2021 Microchip Corporation. All rights reserved.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,7 +34,7 @@ int main()
     char chr;
     FILE *fptr;
 
-    for (; /*ever*/;)
+    for (;/*ever*/;)
     {
         printf("PFSoC system services test program.\r\nPress:\r\n");
         printf("a - to show the serial number\r\nb - to show the fpga digest\r\nc - to cat hwrng, until ctrl+c\r\ne - to exit this program\r\n");
