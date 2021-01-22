@@ -8,7 +8,7 @@ This test application contains a proof of concept for acquiring:
 When run it will present the following options:
 
 ```
-PFSoC system services test program.
+PolarFire SoC system services test program.
 
 Press:
 a - to show the serial number
