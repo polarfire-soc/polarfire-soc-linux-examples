@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: MIT
 /*
  *	Simple UIO CAN Example -- Send and Receive one message in loopback mode
  *
- *	Copyright (c) 2020 Microchip Inc.
+ *	Copyright (c) 2021 Microchip Inc.
  *
  *	Can be freely distributed and used under the terms of the GNU GPL.
  */
