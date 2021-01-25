@@ -37,7 +37,7 @@ int main()
     for (;/*ever*/;)
     {
         printf("PolarFire SoC system services test program.\r\nPress:\r\n");
-        printf("a - to show the serial number\r\nb - to show the fpga digest\r\nc - to cat hwrng, until ctrl+c\r\ne - to exit this program\r\n");
+        printf("1 - to show the serial number\r\n2 - to show the fpga digest\r\n3 - to cat hwrng, until ctrl+c\r\ne - to exit this program\r\n");
         chr = getchar();
         getchar();
 
