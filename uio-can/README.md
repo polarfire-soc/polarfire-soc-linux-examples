@@ -1,6 +1,6 @@
 # PolarFire SoC UIO CAN Example
 
-uio_can_example is a simple example of using CAN via UIO from Linux user-space.
+uio-can-example is a simple example of using CAN via UIO from Linux user-space.
 
 The example expects to find a CAN device mapped to /dev/uio0.
 
@@ -8,5 +8,24 @@ It initialises the CAN device, places it into loopback mode, puts a single messa
 
 It waits for an RX_MSG interrupt and extracts the message from an RX buffer and prints it.
 
-To run the example, type make and then run uio_can_example
+Run the example program, first build it by running make:
+```
+make
+```
+Once built, it can be run:
 
+```
+./uio-can-example
+```
+A successful execution should look like:
+```
+locating device for mss_can0
+located /dev/uio1
+opened /dev/uio1 (r,w)
+mapped 0x1000 bytes for /dev/uio1
+setting can device at /dev/uio1 into loopback mode
+sent msg: 'example'
+received msg: 'example'
+unmapped /dev/uio1
+closed /dev/uio1
+```

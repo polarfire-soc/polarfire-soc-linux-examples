@@ -43,7 +43,7 @@ int main()
 
         switch (chr)
         {
-        case 'a':
+        case '1':
             if ((fptr = fopen("/dev/mpfs_serial_num", "r")) == NULL)
             {
                 printf("Error! opening file");
@@ -53,7 +53,7 @@ int main()
             printf("Icicle kit serial number: %s\n", c);
             fclose(fptr);
             break;
-        case 'b':
+        case '2':
             if ((fptr = fopen("/dev/mpfs_fpga_digest", "r")) == NULL)
             {
                 printf("Error! opening file");
@@ -70,7 +70,7 @@ int main()
             }
             fclose(fptr);
             break;
-        case 'c':
+        case '3':
             if ((fptr = fopen("/dev/hwrng", "r")) == NULL)
             {
                 printf("Error! opening file");
@@ -83,7 +83,7 @@ int main()
             }
             fclose(fptr);
             break;
-        case 'd':
+        case '4':
             if ((fptr = fopen("/dev/mpfs_fpga_digest", "r")) == NULL)
             {
                 printf("Error! opening file");
