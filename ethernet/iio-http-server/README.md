@@ -1,6 +1,6 @@
 # PolarFire SoC Ethernet/IIO Example
 
-This test program interacts with the PAC139x voltage/current sensor on the board and displays graphs of the readings using a webserver.
+This test program interacts with the PAC193x voltage/current sensor on the board and displays graphs of the readings using a webserver.
 
 To run this example program:
 
