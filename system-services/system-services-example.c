@@ -15,13 +15,13 @@ static void display_output(char *data, unsigned int byte_length)
     char buffer[2048];
 	char *bufferp = buffer;
 
-	for (inc = 0; inc < byte_length; ++inc)
+	for (inc = 0; inc < byte_length; inc++)
 	{
 		if(inc%32 == 0 && inc != 0)
 		{
 			bufferp += sprintf(bufferp, "\r\n");
 		}
-		byte = data[32*(1+inc/32) - inc%32];
+		byte = data[32*(1+inc/32) - inc%32 - 1];
 		bufferp += sprintf(bufferp, "%02x", byte);
     }
 
