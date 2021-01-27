@@ -3,7 +3,7 @@
 case "$1" in
   start)
     echo "Starting collectdiio"
-    /usr/sbin/collectd -C /opt/microchip/ethernet/iiohttpserver/collection/collectd.conf -f &
+    /usr/sbin/collectd -C /opt/microchip/ethernet/iio-http-server/collection/collectd.conf -f &
     ;;
   stop)
     echo "Stopping collectdiio"

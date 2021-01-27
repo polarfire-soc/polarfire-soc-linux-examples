@@ -4,7 +4,7 @@ After=local-fs.target network.target
 Requires=local-fs.target network.target
 
 [Service]
-ExecStart=/usr/sbin/collectd -C /opt/microchip/ethernet/iiohttpserver/collection/collectd.conf -f
+ExecStart=/usr/sbin/collectd -C /opt/microchip/ethernet/iio-http-server/collection/collectd.conf -f
 Restart=always
 RestartSec=10
 

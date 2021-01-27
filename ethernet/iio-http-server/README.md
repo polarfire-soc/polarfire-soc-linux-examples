@@ -1,4 +1,4 @@
-# PolarFire SoC ethernet/iio i2c Example
+# PolarFire SoC Ethernet/IIO Example
 
 This test program interacts with the PAC139x voltage/current sensor on the board and displays graphs of the readings using a webserver.
 

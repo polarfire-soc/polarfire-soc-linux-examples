@@ -15,7 +15,7 @@ echo "starting collectd for iio"
 systemctl restart collectdiio
 
 echo "starting webserver"
-export FLASK_APP='/opt/microchip/ethernet/iiohttpserver/run.py'
+export FLASK_APP='/opt/microchip/ethernet/iio-http-server/run.py'
 flask run --host="0.0.0.0" --port=80
 
 echo "stopping collectd for iio"
