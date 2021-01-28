@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: MIT
+/*
+ *	Simple GPIO example -- blink icicle kit LEDs
+ *
+ *	Copyright (c) 2021 Microchip Inc.
+ *
+ */
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

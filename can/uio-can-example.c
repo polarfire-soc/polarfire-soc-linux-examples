@@ -4,7 +4,6 @@
  *
  *	Copyright (c) 2021 Microchip Inc.
  *
- *	Can be freely distributed and used under the terms of the GNU GPL.
  */
 
 #include <sys/types.h>
