@@ -1,12 +1,12 @@
-# Accessing Fabric LSRAM using UIO
+# Accessing PolarFire SoC FPGA Fabric LSRAM using UIO
 
 ## Objective
 
-Using this application, Read's and Write's to memory mapped Fabric LSRAM are performed.
+Using this application, reads and writes to memory mapped FPGA Fabric LSRAM are performed.
 
 ## Description
 
-In the Libero design, Fabric LSRAM component is interfaced to the MSS using FIC_0 and it is accessible to the processors at 0x61000000. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
+In the Libero design, an FPGA fabric LSRAM component is interfaced to the MSS using FIC_0 and it is accessible to the processors at 0x61000000. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
 
 The Microchip PolarFire SoC Yocto BSP includes the following support to access LSRAM from user space:
 
