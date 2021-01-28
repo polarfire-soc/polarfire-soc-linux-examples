@@ -1,3 +1,10 @@
+// SPDX-License-Identifier: MIT
+/*
+ * FPGA fabric lsram example for the Microchip PolarFire SoC
+ *
+ * Copyright (c) 2021 Microchip Technology Inc. All rights reserved.
+ */
+
 #include <sys/stat.h>
 #include <sys/mman.h>
 

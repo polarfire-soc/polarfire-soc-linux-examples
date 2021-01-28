@@ -14,33 +14,20 @@ The Microchip PolarFire SoC Yocto BSP includes the following support to access L
 - A device tree node (uio-generic) is added with LSRAM memory address and size of 64KB in the device tree file.
 - UIO framework is enabled in the Linux configuration file (defconfig).
 
-## Hardware Requirements
-
-- ICICLE Kit (MPFS250T_ES-FCVG484E)
-- Host PC - Windows 10 OS
-
-## Pre-Requisite
-
-Ensure to follow the documentation provided on [Updating PolarFire SoC Icicle-Kit FPGA Design and Linux Image](https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md) and complete the following steps:
-1. Programming the ICICLE KIT reference design
-2. Writing the Pre-built Linux Image to eMMC or SD
-3. Initiating Linux boot
-
-
 ## Running the User Application
 
-The LSRAM user application (LSRAM_read_write) is available under /opt/microchip/lsram directory in rootfs.
+The LSRAM user application (uio-lsram-read-write) is available under `/opt/microchip/fpga-fabric-interfaces/lsram` directory in rootfs.
 
 
 ```
-root@icicle-kit-es:~# cd /opt/microchip/lsram/
+root@icicle-kit-es:~# cd /opt/microchip/fpga-fabric-interfaces/lsram
 ```
 To run the application, follow these steps:
-1. Type the ./LSRAM_read_write command and Press Enter to execute the application.
+1. Type the ./uio-lsram-read-write command and Press Enter to execute the application.
 
 
 ```
-root@icicle-kit-es:/opt/microchip/lsram# ./LSRAM_read_write
+root@icicle-kit-es:/opt/microchip/fpga-fabric-interfaces/lsram# ./uio-lsram-read-write
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
@@ -55,7 +42,7 @@ opened /dev/uio0 (r,w)
 
 
 ```
-root@icicle-kit-es:/opt/microchip/lsram# ./LSRAM_read_write
+root@icicle-kit-es:/opt/microchip/fpga-fabric-interfaces/lsram# ./uio-lsram-read-write
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
