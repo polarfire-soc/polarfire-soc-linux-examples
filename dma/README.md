@@ -38,30 +38,18 @@ The C application includes the following DMA register configuration to initiate 
 
 The C application waits for the interrupt assertion and validates the data once the DMA transfer is completed. 
 
-## Hardware Requirements
-
-- ICICLE Kit (MPFS250T_ES-FCVG484E)
-- Host PC - Windows 10 OS
-
-## Pre-Requisite
-
-Ensure to follow the documentation provided on [Updating PolarFire SoC Icicle-Kit FPGA Design and Linux Image](https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md) and complete the following steps:
-1. Programming the ICICLE KIT reference design
-2. Writing the Pre-built Linux Image to eMMC or SD
-3. Initiating Linux boot
-
 ## Running the User Application
 
-The user application (uio_dma_interrupt) is available under /opt/microchip/uio_dma directory in rootfs.
+The user application (uio-dma-interrupt) is available under /opt/microchip/dma directory in rootfs.
 
 ```
-root@icicle-kit-es:~# cd /opt/microchip/uio_dma/  
+root@icicle-kit-es:~# cd /opt/microchip/dma/  
 ```
 To run the application, follow these steps:
-1. Type the ./uio_dma_interrupt command and Press Enter to execute the application.
+1. Type the ./uio-dma-interrupt command and Press Enter to execute the application.
 
 ```
-root@icicle-kit-es:/opt/microchip/uio_dma# ./uio_dma_interrupt
+root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
@@ -80,7 +68,7 @@ opened /dev/uio2 (r,w)
    After successful completion of memory test on LSRAM, "LSRAM memory test passed successfully" message is displayed on console.
 
 ```
-root@icicle-kit-es:/opt/microchip/uio_dma# ./uio_dma_interrupt
+root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
@@ -114,7 +102,7 @@ Comparing data
 3. Enter 2 to perform data transfer from LSRAM to uncached LPDDR4 memory region using Fabric DMA controller:
 
 ```
-root@icicle-kit-es:/opt/microchip/uio_dma# ./uio_dma_interrupt
+root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
 locating device for uio_lpddr4
 located /dev/uio0
 opened /dev/uio0 (r,w)
