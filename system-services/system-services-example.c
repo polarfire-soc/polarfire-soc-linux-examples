@@ -59,7 +59,7 @@ int main()
                 printf("Error! opening file");
                 exit(1);
             }
-            printf("pfsoc fpga digest:\n", c);
+            printf("pfsoc fpga digest:\n");
             while (fread(c, 66, 1, fptr) == 1)
             {
                 printf("%s", c);
