@@ -7,9 +7,7 @@ Using this application, a shared uncached LPDDR4 memory space is accessed by  li
 
 ## Description
 
-In the Libero design, fabric LSRAM and fabric DMA Controller are interfaced to MSS via FIC. The shared LPDDR4 memory region (0XC0000000-0xC000FFFF) is accessed via  uncached path for fabric as shown in following figure. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
-
-![](./images/Libero_dis.png)
+In the Libero design, fabric LSRAM and fabric DMA Controller are interfaced to MSS via FIC. The shared LPDDR4 memory region (0XC0000000-0xC000FFFF) is accessed via  uncached path for fabric. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
 
 The Microchip PolarFire SoC Yocto BSP includes the following support to access the uncached LPDDR4 region from user space.
 
