@@ -20,11 +20,11 @@ It will present the following options:
 
 ```
 PolarFire SoC system services test program.
-
 Press:
 1 - to show the serial number
 2 - to show the fpga digest
 3 - to cat hwrng, until ctrl+c
+4 - to request a signature
 e - to exit this program
 ```
 
