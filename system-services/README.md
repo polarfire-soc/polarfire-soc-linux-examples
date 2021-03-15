@@ -1,12 +1,12 @@
 # PolarFire SoC System Services Examples
 
-This example application contains a proof of concept for acquiring:   
+This example application is a demonstration of how to acquire:   
 - the board serial number
 - the fpga digest
-- a constant stream of output from the rng device
+- a constant stream of output from the on-board true random number generator (TRNG)
+- an ecdsa signature of a 48 bit hash
 
-
-Run the example program, first build it by running make:
+Before running the example program, build it by running make:
 ```
 make
 ```
@@ -16,14 +16,13 @@ Once built, it can be run:
 ./system-services-example
 ```
 
-It will present the following options:
-
+The following text will appear, showing the demonstrations available:
 ```
-PolarFire SoC system services test program.
+PolarFire SoC system services example program.
 Press:
 1 - to show the serial number
 2 - to show the fpga digest
-3 - to cat hwrng, until ctrl+c
+3 - continuously output from the trng, until ctrl+c
 4 - to request a signature
 e - to exit this program
 ```
