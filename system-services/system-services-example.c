@@ -37,7 +37,7 @@ int main()
     for (;/*ever*/;)
     {
         printf("PolarFire SoC system services example program.\r\nPress:\r\n");
-        printf("1 - to show the serial number\r\n2 - to show the fpga digest\r\n3 - continuously output from the trng, until ctrl+c\r\n4 - to request a signature\r\ne - to exit this program\r\n");
+        printf("1 - to show the FPGA device serial number\r\n2 - to show the FPGA device digests\r\n3 - continuously output random numbers from the TRNG, until ctrl+c\r\n4 - to request an ECDSA signature\r\ne - to exit this program\r\n");
         chr = getchar();
         getchar();
 
