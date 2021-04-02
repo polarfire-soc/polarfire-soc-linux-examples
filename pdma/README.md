@@ -3,9 +3,7 @@
 One task that often needs to be done on devices with FPGA fabrics is transferring large 
 blocks of memory between user space Linux and the fabric.
 
-Depending on what a designer needs to do, there's more than one technique to achieve this goal.
-
-Here's one way to do it where the designer can control memory allocation.
+This is one way to do that where the designer can control memory allocation.
 
 The design pattern used in this example is:
 
@@ -25,8 +23,8 @@ The design pattern used in this example is:
 ## DDR on Icicle-Kit
 There is 2 GB of DDR on Icicle-Kit.  PolarFire SoC has extensive capabilities
 for mapping DDR into either cached, non-cached, and/or non-cached write-combine buffer
-based interfaces (or memory regions). This example explores how the memory regions 
-can be allocated to the 2 GB of physical memory on Icicle-Kit by PolarFire SoC 
+based interfaces (or memory regions). This example uses the default memory region
+allocation for the 2 GB of physical memory on Icicle-Kit by PolarFire SoC 
 
 ### DDR on PolarFire SoC
 On PolarFire SoC, ignoring any board constraints, there are
@@ -44,58 +42,47 @@ The six regions on PolarFire SoC are summarised here.
 |DDR-NC-WCB-HI | 0x1800000000 |  16 GB	    | 64-bit address, non-cached, write-combine buffer |
 
 ### DDR on PolarFire SoC on Icicle-Kit
-By default, PolarFire SoC's Icicle-Kit boards come with 2 GB of DDR on-board, and with (effectively) all of
-that 2 GB of DDR allocated to Linux's general memory allocation strategy, both at fabric design stage
-and in its device tree (dts) file.
+By default, PolarFire SoC's Icicle-Kit boards come with 2 GB of DDR on-board, and with
+1.75 GB (1 GB + 768 MB) of that 2 GB of DDR allocated to cached memory and 256 MB of DDR allocated to
+non-cached memory (with physical memory behind the non-cacheable memory regions addressable at
+two addresses, one address via the write combine buffer and one address without the write-combine buffer.
 
-### Libero Design Flow
-Libero guides a designer through a set of steps to partition the DDR memory available on a
-particular platform across the memory regions listed above.
+So, by default, on Icicle-Kit, the system memory map defaults to:
+|Region Name   | Region Base  | Region Size | Region Properties				       |
+|--------------|--------------|-------------|------------------                                |
+|DDRC-LO       | 0x80000000   | 768 MB	    | 32-bit address, cached                           |
+|DDR-NC-LO     | 0xC0000000   | 256 MB [1]  | 32-bit address, non-cached		       |
+|DDR-NC-WCB-LO | 0xD0000000   | 256 MB [1]  | 32-bit address, non-cached, write-combine buffer |
+|DDRC-HI       | 0x1000000000 |   1 GB	    | 64-bit address, cached			       |
 
-This example assumes a Libero flow where all types of memory regions (cached, non-cached, etc), 
-both in the 'LO' regions and the 'HI' regions are partitioned in such a manner that all 
-memory regions point at the same physical memory.
+[1] NB: This 256MB is a shared view of a single physical memory area.
 
-For example, in this case, a designer can write a value to memory at 0x80000000 and read
-back that value from 0x1000000000. Similarly, the non-cached addresses also point at the same
-physical memory.
+By default, the Linux device tree further partitions the memory map by:
+a) allocating 32 MB in the 0x80000000 memory space for contiguous cached buffer allocation;
+b) allocating 128 MB in the 0xc0000000 for contiguous non-cached buffer allocation;
+c) allocating 128 MB in the 0xd0000000 for continguous non-cached buffer (wcb) allocation;
+d) allocating all other memory into the Linux general memory allocation pool.
 
-This behaviour is configurable and should to be ascertained before assigning memory on PolarFire SoC.
+Just using the device-tree, a designer can adjust the memory allocations within either a
+cached or a non-cached category.  For example, a designer can allocate more memory to non-cached wcb area,
+provided they reduce the memory allocated to the regular non-cached area correspondingly.
 
-## DDR Allocation Strategy
-There is 2 GB of DDR physically available on Icicle-Kit.
+Or a developer may allocate more memory to a contiguous cached buffer
+provided they reduce the memory allocated to Linux for general purposes correspondingly.
 
-By default the entire 2 GB available on Icicle-Kit (with a few minor reservations) 
-is allocated to Linux's general memory allocation strategy. This 2 GB is allocated
-in two regions; 1 GB is allocated to the DDRC-LO memory region and 1 GB is allocated
-to the DDRC-HI memory region.
-
-This example, instead, allocates 1 GB from the DDRC-LO memory region and
-768 MB from the DDRC-HI memory region to Linux' general memory allocation
-strategy and allocates 256 MB from the top of the DDR HI regions into 
-Linux's reserved memory.
-
-This example divides that 256 MB between 3 large contiguous buffers as shown
-in this table
-
-|Size   | Region      |
-|-------|-------------|
-|128 MB |DDRC-HI      |
-| 64 MB |DDR-NC-HI    |
-| 64 MB |DDR-HC-WCB-HI|
+Much more significant memory map changes can be made. Please refer to the Libero documentation
+for details.
 
 ### Default DDR Allocation on Icicle-Kit
 The default device tree (dts) file for PolarFire SoC on Icicle-Kit uses two
-mappings as shown here; the first mapping associates 1 GB of DDR memory,
+mappings as shown here; the first mapping associates 736 MB of DDR memory,
 cached, at the LO interface at 0x80000000 and the second mapping
 associates another 1 GB or DDR memory, cached, at the HI address.
-The HI memory, in this example, is offset by 1 GB, as the LO and HI
-memory regions map to the same physical memory in this design.
 
 ```
 DDRC-LO: memory@80000000 {
 	device_type = "memory";
-	reg = "0x0 0x80000000 0x0 0x40000000>;
+	reg = "0x0 0x80000000 0x0 0x2e000000>;
 	...
 };
 DDRC-HI: memory@1040000000 {
@@ -105,47 +92,25 @@ DDRC-HI: memory@1040000000 {
 };
 ```
 
-The effect of this is to tell Linux that it can use all of the 2 GB of memory 
-that is provided on Icicle-Kit by default (with some minor exceptions) for its
-general memory allocation strategy.
+This leaves 288 MB of memory for other purposes.
 
-Linux maps 1 GB of physical DDR at 0x80000000 and maps the other 1 GB of physical DDR 
-at 0x1040000000. Both of those address ranges are cache-coherent.
-
-### Reducing Linux Size by 256 MB
-This example will, instead, allocate 256 MB of memory for special purposes.
-Before this example allocates this 256 MB, it removes the 256 MB from Linux general
-memory allocation.
-
-This example reduces the DDRC-HI stanza from 1 GB to 768 MB to free up 256 MB of
-physical memory at the top of the physical DDR on Icicle-Kit.
-
-The DDRC-HI stanza now becomes:
-```
-DDRC-HI: memory@1040000000 {
-	device_type = "memory";
-	reg = "0x10 0x40000000 0x0 0x30000000>;
-	...
-};
-```
-
-After reserving memory from Linux's general memory allocation strategy, this
-example will use `reserved-memory` to create pools using this 256 MB.
 
 ### Using 'Reserved-Memory' to create pools
 
-This part of the example creates 3 buffers; one in the cached DDR address-space,
-one in the non-cached DDR address space, and one in the non-cached write-combined DDR address
-space using the 256 MB of memory reserved in the previous step.
+By default with Icicle-Kit, the Linux device tree creates 3 buffers; 
+* one in the cached DDR address-space
+* one in the non-cached DDR address space, and
+* one in the non-cached write-combined DDR address space 
+using the 288 MB of memory reserved in the previous steps.
 
-This example allocates that 256 MB of DDR as:
+These buffers are allocated as:
+* 32 MB buffer, cache-coherent;
+* 128 MB buffer, non-cache-coherent;
+* 128 MB buffer, non-cache-coherent, write combine buffered
 
-* 128 MB buffer, cache-coherent;
-* 64 MB buffer, non-cache-coherent;
-* 64 MB buffer, non-cache-coherent, write combine buffered
+all in the 'LO' space, that is the 32-bit addressable memory space.
 
-There is more than one way of achieving this up on PolarFire SoC. This example 
-uses 3 `reserved-memory` stanzas in the device tree (dts) file; one for each buffer.
+There are 3 `reserved-memory` stanzas in the device tree (dts) file; one for each buffer.
 
 ```
 reserved-memory {
@@ -154,36 +119,20 @@ reserved-memory {
 	#address-cells = <2>;
 	fabricbuf0: fabricbuf@0 {
 		compatible = "shared-dma-pool";
-		reg =  <0x10 0x70000000 0x0 0x08000000>; /* Addr, Size = 128 MB */
+		reg =  <0x0 0xae000000 0x0 0x02000000>; /* Top 32 MB @ 80000000 */
 		label = "fabricbuf-ddrc";
 	};
 	fabricbuf1: fabricbuf@1 {
 		compatible = "shared-dma-pool";
-		reg = <0x14 0x78000000 0x0 0x04000000>; /* Addr, Size = 64 MB */
+		reg = <0x0 0xc0000000 0x0 0x08000000>; /* Bottom 128 MB @ c0000000 (shared with d0000000) */
 		label = "fabricbuf-ddr-nc";
 	};
 	fabricbuf2: fabricbuf@2 {
 		compatible = "shared-dma-pool";
-		reg = <0x18 0x7c000000 0x0 0x04000000>; /* Addr, Size = 64 MB */
+		reg = <0x0 0xd8000000 0x0 0x08000000>; /* Top 128 MB @ d0000000 (shared with c0000000) */
 		label = "fabricbuf-ddr-nc-wcb";
 	};
 };
-```
-
-These addresses are constructed as shown above because this example 
-assumes a design where the same physical DDR memory is mapped across 
-the six memory regions as shown here:
-
-|Region Name	| Region Base	| Region Size	| Mapped to Physical DDR        |
-| ------------  | ------------  | ------------- | ----------------------------- |
-|DDRC-LO	| 0x80000000	|   1 GB	| 0x00000000 - 0x3fffffff |
-|DDR-NC-LO	| 0xC0000000	| 256 MB	| 0x00000000 - 0x0fffffff |
-|DDR-NC-WCB-LO	| 0xD0000000	| 256 MB	| 0x00000000 - 0x0fffffff |
-|DDRC-HI	| 0x1000000000	|  16 GB	| 0x0000000000 - 0x03ffffffff	|
-|DDR-NC-HI	| 0x1400000000	|  16 GB	| 0x0000000000 - 0x03fffffffff	|
-|DDR-NC-WCB-HI  | 0x1800000000	|  16 GB	| 0x0000000000 - 0x03fffffffff  |
-
-i.e. this example starts from a design where the six memory regions are mapped to the same physical memory.
 
 Note, to be picked up by the Linux subsystem, the `reserved-memory` stanza must be at the top-level of
 the device tree (dts) file.
@@ -199,11 +148,11 @@ If adjusting this example:
 
 As Linux boots, it reports these three DMA memory pools.
 ```
-[..] Reserved memory: created DMA memory pool at 0x0000001070000000, size 128 MiB
+[..] Reserved memory: created DMA memory pool at 0x00000000ae000000, size 32 MiB
 [..] OF: reserved mem: initialized node fabricbuf@0, compatible id shared-dma-pool
-[..] Reserved memory: created DMA memory pool at 0x0000001478000000, size 64 MiB
+[..] Reserved memory: created DMA memory pool at 0x00000000c0000000, size 128 MiB
 [..] OF: reserved mem: initialized node fabricbuf@1, compatible id shared-dma-pool
-[..] Reserved memory: created DMA memory pool at 0x000000187c000000, size 64 MiB
+[..] Reserved memory: created DMA memory pool at 0x00000000d8000000, size 128 MiB
 [..] OF: reserved mem: initialized node fabricbuf@2, compatible id shared-dma-pool
 ```
 
@@ -211,20 +160,14 @@ Linux also notes the Zone ranges it will use for general memory allocation.
 ```
 [..] Zone ranges:
 [..]   DMA32    [mem 0x0000000080200000-0x00000000ffffffff]
-[..]   Normal   [mem 0x0000000100000000-0x000000106fffffff]
+[..]   Normal   [mem 0x0000000100000000-0x000000103fffffff]
 ```
-with the `Normal` region ending just below `0x1070000000` which is expected for this example.
-
-
-Linux also notes the total amount of memory available.
-```
-[..] Memory: 1714368K/1832960K available (4806K kernel code, 339K rwdata, 2072K rodata, 193K init, 283K bss, 118592K reserved, 0K cma-reserved)
-```
+with the `Normal` region ending just below `0x1040000000`. Linux reserves the space from 
+0x80000000 to 0x80200000 for its own code and data.
 
 ### Accessing `reserved-memory` from user space
 
-This part of the design pattern describes one technique for accessing `reserved-memory`
-from user space.
+Here's one technique for accessing `reserved-memory` from user space.
 
 This example uses `u-dma-buf` by Ichiro Kawazome.
 
@@ -235,15 +178,17 @@ using UIO (User space I/O).
 
 Full details and code are available on [github](https://github.com/ikwzm/udmabuf).
 
-This example runs on a variant of PolarFire SoC's yocto distribution which includes `u-dma-buf` in the built kernel.
+This example runs on variants of PolarFire SoC's yocto and buildroot distributions which include `u-dma-buf` in the built kernel.
 
 This example configures three contiguous buffers so `u-dma-buf` can present each of the three fabric buffers 
 to user space.
 
-This example then refers to these contiguous buffers in user space as pools.
+This example refers to these contiguous buffers in user space as 'pools'.
 
-This example enables access to one pool from cached memory from user space; access to one pool from non-cached
-memory from user space; and access to one pool which operates via the non-cached write-combine buffer from user space.
+This example enables:
+* access to one pool from 'cached' memory from user space
+* access to one pool from 'non-cached' memory from user space, and
+* access to one pool which operates via the non-cached write-combine buffer from user space.
 
 This are the relevant device tree stanzas, one for each buffer.  Each buffer has a size and a reference to a memory
 region, and each buffer now has a device name.  This example uses these device names to locate the buffers 
@@ -254,7 +199,7 @@ in user space.
 		compatible = "ikwzm,u-dma-buf";
 		device-name = "udmabuf-ddr-c0";
 		minor-number = <0>;
-		size = <0x0 0x08000000>; /* 128 MB */
+		size = <0x0 0x02000000>; /* 32 MB */
 		memory-region = <&fabricbuf0>;
 		sync-mode = <3>;
 	};
@@ -262,8 +207,8 @@ in user space.
 		compatible = "ikwzm,u-dma-buf";
 		device-name = "udmabuf-ddr-nc0";
 		minor-number = <1>;
-		size = <0x0 0x04000000>; /* 64 MB */
-		memory-region = <&fabricbuf0>;
+		size = <0x0 0x08000000>; /* 128 MB */
+		memory-region = <&fabricbuf1>;
 		sync-mode = <3>;
 		
 	};
@@ -271,12 +216,14 @@ in user space.
 		compatible = "ikwzm,u-dma-buf";
 		device-name = "udmabuf-ddr-nc-wcb0";
 		minor-number = <2>;
-		size = <0x0 0x04000000>; /* 64 MB */
-		memory-region = <&fabricbuf0>;
+		size = <0x0 0x08000000>; /* 128 MB */
+		memory-region = <&fabricbuf2>;
 		sync-mode = <3>;
 
 	};
-```
+`
+If a designer changes the size of a fabricbuf, they probably want to adjust the
+size of the fabricbuf here as well.
 
 As Linux boots on PolarFire SoC, the Linux boot console will contain details of the three 
 `u-dma-dev` buffers created using the stanzas above.
@@ -286,8 +233,8 @@ As Linux boots on PolarFire SoC, the Linux boot console will contain details of 
 [    1.408414] u-dma-buf udmabuf-ddrc0: driver version = 3.2.4
 [    1.414011] u-dma-buf udmabuf-ddrc0: major number   = 248
 [    1.419497] u-dma-buf udmabuf-ddrc0: minor number   = 0
-[    1.424731] u-dma-buf udmabuf-ddrc0: phys address   = 0x0000001070000000
-[    1.431490] u-dma-buf udmabuf-ddrc0: buffer size    = 134217728
+[    1.424731] u-dma-buf udmabuf-ddrc0: phys address   = 0x00000000ae000000
+[    1.431490] u-dma-buf udmabuf-ddrc0: buffer size    = 33554432
 [    1.437475] u-dma-buf soc:udmabuf@0: driver installed.
 ```
 
@@ -296,8 +243,8 @@ As Linux boots on PolarFire SoC, the Linux boot console will contain details of 
 [    1.830654] u-dma-buf udmabuf-ddrc-nc0: driver version = 3.2.4
 [    1.836553] u-dma-buf udmabuf-ddrc-nc0: major number   = 248
 [    1.842225] u-dma-buf udmabuf-ddrc-nc0: minor number   = 1
-[    1.847777] u-dma-buf udmabuf-ddrc-nc0: phys address   = 0x0000001478000000
-[    1.854747] u-dma-buf udmabuf-ddrc-nc0: buffer size    = 67108864
+[    1.847777] u-dma-buf udmabuf-ddrc-nc0: phys address   = 0x00000000c0000000
+[    1.854747] u-dma-buf udmabuf-ddrc-nc0: buffer size    = 134217728
 [    1.860896] u-dma-buf soc:udmabuf@1: driver installed.
 ```
 
@@ -306,14 +253,14 @@ As Linux boots on PolarFire SoC, the Linux boot console will contain details of 
 [    1.907039] u-dma-buf udmabuf-ddrc-nc-wcb0: driver version = 3.2.4
 [    1.913237] u-dma-buf udmabuf-ddrc-nc-wcb0: major number   = 248
 [    1.919344] u-dma-buf udmabuf-ddrc-nc-wcb0: minor number   = 2
-[    1.925231] u-dma-buf udmabuf-ddrc-nc-wcb0: phys address   = 0x000000187c000000
-[    1.932553] u-dma-buf udmabuf-ddrc-nc-wcb0: buffer size    = 67108864
+[    1.925231] u-dma-buf udmabuf-ddrc-nc-wcb0: phys address   = 0x00000000d8000000
+[    1.932553] u-dma-buf udmabuf-ddrc-nc-wcb0: buffer size    = 13417728
 [    1.939054] u-dma-buf soc:udmabuf@2: driver installed.
 
 ```
 
 ## User Space
-This section of the example switches focus to user space and describes interacting 
+Now, the example switches focus to user space and describes interacting 
 with the pools created by the kernel from user space.
 
 The source files for this example can be found at `/opt/microchip/pdma`
@@ -393,7 +340,7 @@ To see a `phys_addr` value, `cat` the relevant file, in a similar manner to this
 
 ```
 # cat /sys/class/u-dma-buf/udmabuf-ddrc0/phys_addr
-0x0000001070000000
+0x00000000ae000000
 ```
 
 And, to see a `size` value for a particular device, `cat` the relevant file, in a
@@ -402,7 +349,7 @@ similar manner to this.
 
 ```
 # cat /sys/class/u-dma-buf/udmabuf-ddrc0/size
-134217728
+33554432
 ```
 
 Note, the `phys_addr` field is in hexadecimal and `size` is in decimal.
@@ -984,9 +931,9 @@ non-cached via write-combine buffer.
 
 | Memory Type | Transfer Size | `memcpy()` speed | PDMA speed |
 | ----------- | ------------- | ------------ | ------------- |
-| DDRC        | 64 MB         | 91.67 MB/sec | 445.51 MB/sec |
-| DDR-NC      | 32 MB         | 23.35 MB/sec | 359.04 MB/sec |
-| DDR-NC-WCB  | 32 MB         | 42.80 MB/sec | 359.08 MB/sec |
+| DDRC        | 32 MB         | 91.67 MB/sec | 445.51 MB/sec |
+| DDR-NC      | 128 MB         | 23.35 MB/sec | 359.04 MB/sec |
+| DDR-NC-WCB  | 128 MB         | 42.80 MB/sec | 359.08 MB/sec |
 
 ### Conclusions
 This pattern is useful for developers moving large amounts of data where those

@@ -133,10 +133,10 @@ static int get_pools(char * provider, struct pool_t ** pools)
 	char poolinfo[FILENAME_LEN];
 	DIR *dirp;
 	struct dirent *dp;
-	char *poolname;
 	FILE *fp;
 	struct pool_t * pool;
 	bool found = false;
+	int check;
 
 	snprintf(poolinfo, sizeof(poolinfo), "%s/%s/", root, provider);
 	dirp = opendir(poolinfo);
@@ -151,31 +151,25 @@ static int get_pools(char * provider, struct pool_t ** pools)
 			    !strcmp(dp->d_name, "..")) {
 				;
 			} else {
-				poolname = (char *)malloc(strlen(dp->d_name)+1);
-				strncpy(poolname, dp->d_name,
-					strlen(dp->d_name)+1);
-				snprintf(poolinfo, sizeof(poolinfo), "%s/%s/%s/%s",
-					 root, provider, poolname, addr);
+				check = snprintf(poolinfo, sizeof(poolinfo), "%s/%s/%s/%s",
+					 root, provider, dp->d_name, addr);
+				(void)check;
 
 				fp = fopen(poolinfo, "r");
-				if (!fp) {
-					free(poolname);
+				if (!fp)
 					continue;
-				}
 
-				pool = (struct pool_t *)malloc(
-					sizeof(struct pool_t));
+				pool = (struct pool_t *)malloc(sizeof(struct pool_t));
 				pool->next = NULL;
 
 				fscanf(fp, "%lx", &pool->base);
 				fclose(fp);
 
-				snprintf(poolinfo, sizeof(poolinfo), "%s/%s/%s/%s",
-		 			 root, provider, poolname, size);
+				check = snprintf(poolinfo, sizeof(poolinfo), "%s/%s/%s/%s",
+		 			 root, provider, dp->d_name, size);
 
 				fp = fopen(poolinfo, "r");
 				if (!fp) {
-					free(poolname);
 					free(pool);
 					continue;
 				}
@@ -183,13 +177,11 @@ static int get_pools(char * provider, struct pool_t ** pools)
 				fscanf(fp, "%lu", &pool->sz);
 
 				pool->name = (char *)malloc(FILENAME_LEN);
-				strcpy(pool->name, poolname);
+				strcpy(pool->name, dp->d_name);
 
 				*pools = insert_pool(pool, pools);
 				found = true;
 
-				free(poolname);
-				poolname = 0;
 				fclose(fp);
 			}
 		}
@@ -394,7 +386,6 @@ static int get_pdma_devs(struct pdma_t pdma[])
 	char uioname[FILENAME_LEN];
 	DIR *dirp;
 	struct dirent *dp;
-	char *bufname;
 	int found = 0;
 	uint64_t addr;
 	size_t sz;
@@ -402,6 +393,10 @@ static int get_pdma_devs(struct pdma_t pdma[])
 
 	snprintf(bufinfo, sizeof(bufinfo), "%s", root);
 	dirp = opendir(bufinfo);
+	if (!dirp) {
+		printf("failed to open %s\n", bufinfo);
+		return -1;
+	}
 
 	while ((dp = readdir(dirp)) != NULL) {
 		if (dp->d_name) {
@@ -409,15 +404,9 @@ static int get_pdma_devs(struct pdma_t pdma[])
 			    !strcmp(dp->d_name, "..")) {
 				;
 			} else {
-				bufname = (char *)malloc(strlen(dp->d_name)+1);
-				strncpy(bufname, dp->d_name,
-					strlen(dp->d_name)+1);
-
-				get_uio_devname(bufname, devname, uioname);
-				if (*devname == 0) {
-					free(bufname);
+				get_uio_devname(dp->d_name, devname, uioname);
+				if (*devname == 0)
 					continue;
-				}
 
 				if(is_pdma_dev(devname)) {
 					index = get_pdma_dev_index(devname);
@@ -427,8 +416,6 @@ static int get_pdma_devs(struct pdma_t pdma[])
 						     devname, addr, sz);
 					found++;
 				}
-
-				free(bufname);
 			}
 		}
 	}
@@ -734,16 +721,6 @@ static struct buf_t *pdmacpy(struct buf_t *destbuf, struct buf_t *srcbuf,
 		return NULL;
 	}
 
-#if 0
-	/*
-	 * Poll to get to see did we get the done interrupt flag, and report
-	 * status.
-	 */
-	while(done == 0) {
-		done |= MSS_PDMA_clear_transfer_complete_status(chan);
-		done |= MSS_PDMA_clear_transfer_error_status(chan);
-	}
-#endif
 	wait_for_int(pdmas, chan);
 
 	return destbuf;
