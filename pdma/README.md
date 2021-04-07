@@ -245,13 +245,11 @@ The source files for this example can be found at `/opt/microchip/pdma`
 
 
 ### Allocating and freeing pools in user space
-This example uses `u-dma-buf` so a user space application can access three large contiguous buffers as pools.  One pool is located in a cached 
-DDR region, one pool is located in a non-cached DDR region, and one pool is located in a non-cached DDR region which uses a write-combine buffer.
+This example uses `u-dma-buf` so a user space application can access three large contiguous buffers as pools.  One pool is located in a cached DDR region, one pool is located in a non-cached DDR region, and one pool is located in a non-cached DDR region which uses a write-combine buffer.
 
 ### Devices in User Space
 
-This section describes the pieces of information about the pools presented by `u-dma-buf` in the user space filesystem.  This example will use
-these pieces of information to access the pools.
+This section describes the pieces of information about the pools presented by `u-dma-buf` in the user space filesystem.  This example will use these pieces of information to access the pools.
 
 This example expects to see three devices in `/dev/`, namely:
 ```
@@ -260,8 +258,7 @@ crw------- 1 root root 248,  1 Aug  1 02:24 /dev/udmabuf-ddrc-nc0
 crw------- 1 root root 248,  0 Aug  1 02:24 /dev/udmabuf-ddrc0
 ```
 
-This example uses these devices in a user space application by opening each device, and using `mmap()` to map the physical address of the base
-of the memory region associated with each device, along with the size of the memory region associated with each device into user space.
+This example uses these devices in a user space application by opening each device, and using `mmap()` to map the physical address of the base of the memory region associated with each device, along with the size of the memory region associated with each device into user space.
 
 `u-dma-buf` provides the information needed by `mmap()` in the Linux file-system via `sysfs`.
 
