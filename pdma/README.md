@@ -794,7 +794,7 @@ static void unmap_pdma_devs(struct pdma_t pdmas[])
 #### Linking with MSS Driver
 This example adapts the Microchip MSS Bare Metal PDMA driver to run in user space on Linux.
 
-The main change to the MSS Bare Metal PDMA Driver is it is adapted to use a variable to hold the virtual address of the base address of the driver instead of statically defining that base address as a physical address.
+The main change to the MSS Bare Metal PDMA Driver is adapting it to use a variable to hold the virtual address of the base address of the driver instead of statically defining that base address as a physical address.
 
 The adapted driver is supplied in the example directory as `mss-pdma.c` and `mss-pdma.h`.
 
