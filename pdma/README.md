@@ -812,11 +812,11 @@ This table summarises the length of time taken by `memcpy()` and for `pdmacpy()`
 
 These rates are captured for the three types of memory on PolarFire SoC; cached, non-cached, and non-cached via write-combine buffer.
 
-| Memory Type | Transfer Size | `memcpy()` speed | PDMA speed |
-| ----------- | ------------- | ------------ | ------------- |
-| DDRC        | 32 MB         | 91.67 MB/sec | 445.51 MB/sec |
-| DDR-NC      | 128 MB         | 23.35 MB/sec | 359.04 MB/sec |
-| DDR-NC-WCB  | 128 MB         | 42.80 MB/sec | 359.08 MB/sec |
+| Memory Type | Transfer Size | `memcpy()` speed | PDMA speed    |
+| ----------- | ------------- | ---------------- | ------------- |
+| DDRC        | 32 MB         | 91.67 MB/sec     | 445.51 MB/sec |
+| DDR-NC      | 128 MB        | 23.35 MB/sec     | 359.04 MB/sec |
+| DDR-NC-WCB  | 128 MB        | 42.80 MB/sec     | 359.08 MB/sec |
 
 ### Conclusions
 This pattern is useful for developers moving large amounts of data where those developers control the memory allocation scheme.
