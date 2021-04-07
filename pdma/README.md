@@ -297,8 +297,7 @@ Each directory contains the files listed here.
 
 This example focusses on the `phys_addr` and `size` files.
 
-There are a number of other files of interest in this directory, mainly related to adjusting the synchronisation rules. There is a guide to using 
-these files for achieving synchronisation on [github](https://github.com/ikwzm/udmabuf) if extending this basic example.
+There are a number of other files of interest in this directory, mainly related to adjusting the synchronisation rules. There is a guide to using these files for achieving synchronisation on [github](https://github.com/ikwzm/udmabuf) if extending this basic example.
 
 To see a `phys_addr` value, `cat` the relevant file, in a similar manner to this.
 
