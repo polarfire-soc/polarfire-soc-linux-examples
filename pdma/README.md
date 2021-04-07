@@ -1,7 +1,6 @@
 # Linux; PolarFire SoC; Transferring Large Blocks of Data between User Space and FPGA Fabric
 
-One task that often needs to be done on devices with FPGA fabrics is transferring large 
-blocks of memory between user space Linux and the fabric.
+One task that often needs to be done on devices with FPGA fabrics is transferring large blocks of memory between user space Linux and the fabric.
 
 This is one way to do that where the designer can control memory allocation.
 
@@ -21,14 +20,10 @@ The design pattern used in this example is:
     * use this PDMA hardware to manipulate the buffers
 
 ## DDR on Icicle-Kit
-There is 2 GB of DDR on Icicle-Kit.  PolarFire SoC has extensive capabilities
-for mapping DDR into either cached, non-cached, and/or non-cached write-combine buffer
-based interfaces (or memory regions). This example uses the default memory region
-allocation for the 2 GB of physical memory on Icicle-Kit by PolarFire SoC 
+There is 2 GB of DDR on Icicle-Kit. PolarFire SoC has extensive capabilities for mapping DDR into either cached, non-cached, and/or non-cached write-combine buffer based interfaces (or memory regions). This example uses the default memory region allocation for the 2 GB of physical memory on Icicle-Kit by PolarFire SoC.
 
 ### DDR on PolarFire SoC
-On PolarFire SoC, ignoring any board constraints, there are
-six interfaces (or memory regions) that are relevant to this example.
+On PolarFire SoC, ignoring any board constraints, there are six interfaces (or memory regions) that are relevant to this example.
 
 The six regions on PolarFire SoC are summarised here.
 
@@ -42,10 +37,7 @@ The six regions on PolarFire SoC are summarised here.
 |DDR-NC-WCB-HI | 0x1800000000 |  16 GB	    | 64-bit address, non-cached, write-combine buffer |
 
 ### DDR on PolarFire SoC on Icicle-Kit
-By default, PolarFire SoC's Icicle-Kit boards come with 2 GB of DDR on-board, and with
-1.75 GB (1 GB + 768 MB) of that 2 GB of DDR allocated to cached memory and 256 MB of DDR allocated to
-non-cached memory (with physical memory behind the non-cacheable memory regions addressable at
-two addresses, one address via the write combine buffer and one address without the write-combine buffer.
+By default, PolarFire SoC's Icicle-Kit boards come with 2 GB of DDR on-board, and with 1.75 GB (1 GB + 768 MB) of that 2 GB of DDR allocated to cached memory and 256 MB of DDR allocated to non-cached memory (with physical memory behind the non-cacheable memory regions addressable at two addresses, one address via the write combine buffer and one address without the write-combine buffer.
 
 So, by default, on Icicle-Kit, the system memory map defaults to:
 
@@ -65,21 +57,14 @@ b) allocating 128 MB in the 0xc0000000 for contiguous non-cached buffer allocati
 c) allocating 128 MB in the 0xd0000000 for continguous non-cached buffer (wcb) allocation;
 d) allocating all other memory into the Linux general memory allocation pool.
 
-Just using the device-tree, a designer can adjust the memory allocations within either a
-cached or a non-cached category.  For example, a designer can allocate more memory to non-cached wcb area,
-provided they reduce the memory allocated to the regular non-cached area correspondingly.
+Just using the device-tree, a designer can adjust the memory allocations within either a cached or a non-cached category.  For example, a designer can allocate more memory to non-cached wcb area, provided they reduce the memory allocated to the regular non-cached area correspondingly.
 
-Or a developer may allocate more memory to a contiguous cached buffer
-provided they reduce the memory allocated to Linux for general purposes correspondingly.
+Or a developer may allocate more memory to a contiguous cached buffer provided they reduce the memory allocated to Linux for general purposes correspondingly.
 
-Much more significant memory map changes can be made. Please refer to the Libero documentation
-for details.
+Much more significant memory map changes can be made. Please refer to the Libero documentation for details.
 
 ### Default DDR Allocation on Icicle-Kit
-The default device tree (dts) file for PolarFire SoC on Icicle-Kit uses two
-mappings as shown here; the first mapping associates 736 MB of DDR memory,
-cached, at the LO interface at 0x80000000 and the second mapping
-associates another 1 GB or DDR memory, cached, at the HI address.
+The default device tree (dts) file for PolarFire SoC on Icicle-Kit uses two mappings as shown here; the first mapping associates 736 MB of DDR memory, cached, at the LO interface at 0x80000000 and the second mapping associates another 1 GB or DDR memory, cached, at the HI address.
 
 ```
 DDRC-LO: memory@80000000 {
@@ -137,14 +122,12 @@ reserved-memory {
 };
 ```
 
-Note, to be picked up by the Linux subsystem, the `reserved-memory` stanza must be at the top-level of
-the device tree (dts) file.
+Note, to be picked up by the Linux subsystem, the `reserved-memory` stanza must be at the top-level of the device tree (dts) file.
 
 If adjusting this example:
 
 1. the addresses and size of each `fabricbuf` may need to be adjusted
-2. the size of the u-dma-buf that serves one or more `shared-dma-pool` out to user space may need to
-	be adjusted
+2. the size of the u-dma-buf that serves one or more `shared-dma-pool` out to user space may need to be adjusted
 3. the size of memory allocated to Linux for general memory allocation may need to be adjusted
 4. the partitioning of the physical DDR between the six memory regions may need to be reviewed (specifically 
    the values of the SEG0 and SEG1 registers)
@@ -165,8 +148,7 @@ Linux also notes the Zone ranges it will use for general memory allocation.
 [..]   DMA32    [mem 0x0000000080200000-0x00000000ffffffff]
 [..]   Normal   [mem 0x0000000100000000-0x000000103fffffff]
 ```
-with the `Normal` region ending just below `0x1040000000`. Linux reserves the space from 
-0x80000000 to 0x80200000 for its own code and data.
+with the `Normal` region ending just below `0x1040000000`. Linux reserves the space from 0x80000000 to 0x80200000 for its own code and data.
 
 ### Accessing `reserved-memory` from user space
 
@@ -174,17 +156,13 @@ Here's one technique for accessing `reserved-memory` from user space.
 
 This example uses `u-dma-buf` by Ichiro Kawazome.
 
-`u-dma-buf` is a Linux device driver that allocates contiguous memory blocks in the kernel space
-as DMA buffers and makes them available from the user space.  It is intended that these memory
-blocks are used as DMA buffers when a user application implements device driver in user space
-using UIO (User space I/O).
+`u-dma-buf` is a Linux device driver that allocates contiguous memory blocks in the kernel space as DMA buffers and makes them available from the user space.  It is intended that these memory blocks are used as DMA buffers when a user application implements device driver in user space using UIO (User space I/O).
 
 Full details and code are available on [github](https://github.com/ikwzm/udmabuf).
 
 This example runs on variants of PolarFire SoC's yocto and buildroot distributions which include `u-dma-buf` in the built kernel.
 
-This example configures three contiguous buffers so `u-dma-buf` can present each of the three fabric buffers 
-to user space.
+This example configures three contiguous buffers so `u-dma-buf` can present each of the three fabric buffers to user space.
 
 This example refers to these contiguous buffers in user space as 'pools'.
 
@@ -194,9 +172,7 @@ This example enables:
   * access to one pool from 'non-cached' memory from user space, and
   * access to one pool which operates via the non-cached write-combine buffer from user space.
 
-This are the relevant device tree stanzas, one for each buffer.  Each buffer has a size and a reference to a memory
-region, and each buffer now has a device name.  This example uses these device names to locate the buffers 
-in user space.
+This are the relevant device tree stanzas, one for each buffer. Each buffer has a size and a reference to a memory region, and each buffer now has a device name. This example uses these device names to locate the buffers in user space.
 
 ```
 	udmabuf@0 {
@@ -227,11 +203,9 @@ in user space.
 	};
 ```
 
-If a designer changes the size of a fabricbuf, they probably want to adjust the
-size of the fabricbuf here as well.
+If a designer changes the size of a fabricbuf, they probably want to adjust the size of the fabricbuf here as well.
 
-As Linux boots on PolarFire SoC, the Linux boot console will contain details of the three 
-`u-dma-dev` buffers created using the stanzas above.
+As Linux boots on PolarFire SoC, the Linux boot console will contain details of the three `u-dma-dev` buffers created using the stanzas above.
 
 ```
 [    0.810707] u-dma-buf soc:udmabuf@0: assigned reserved memory node fabricbuf@0
@@ -265,22 +239,18 @@ As Linux boots on PolarFire SoC, the Linux boot console will contain details of 
 ```
 
 ## User Space
-Now, the example switches focus to user space and describes interacting 
-with the pools created by the kernel from user space.
+Now, the example switches focus to user space and describes interacting with the pools created by the kernel from user space.
 
 The source files for this example can be found at `/opt/microchip/pdma`
 
 
 ### Allocating and freeing pools in user space
-This example uses `u-dma-buf` so a user space application can access
-three large contiguous buffers as pools.  One pool is located in a cached 
-DDR region, one pool is located in a non-cached DDR region, and one pool
-is located in a non-cached DDR region which uses a write-combine buffer.
+This example uses `u-dma-buf` so a user space application can access three large contiguous buffers as pools.  One pool is located in a cached 
+DDR region, one pool is located in a non-cached DDR region, and one pool is located in a non-cached DDR region which uses a write-combine buffer.
 
 ### Devices in User Space
 
-This section describes the pieces of information about the pools 
-presented by `u-dma-buf` in the user space filesystem.  This example will use
+This section describes the pieces of information about the pools presented by `u-dma-buf` in the user space filesystem.  This example will use
 these pieces of information to access the pools.
 
 This example expects to see three devices in `/dev/`, namely:
@@ -290,20 +260,15 @@ crw------- 1 root root 248,  1 Aug  1 02:24 /dev/udmabuf-ddrc-nc0
 crw------- 1 root root 248,  0 Aug  1 02:24 /dev/udmabuf-ddrc0
 ```
 
-This example uses these devices in a user space application by opening
-each device, and using `mmap()` to map the physical address of the base
-of the memory region associated with each device, along with the size
-of the memory region associated with each device into user space.
+This example uses these devices in a user space application by opening each device, and using `mmap()` to map the physical address of the base
+of the memory region associated with each device, along with the size of the memory region associated with each device into user space.
 
 `u-dma-buf` provides the information needed by `mmap()` in the Linux file-system via `sysfs`.
 
 #### sysfs
-`sysfs` is  pseudo file system provided by the Linux kernel that exports information about
-various kernel subsystems, hardware devices, and associated device drivers from the
-kernel's device model to user space through virtual files.
+`sysfs` is  pseudo file system provided by the Linux kernel that exports information about various kernel subsystems, hardware devices, and associated device drivers from the kernel's device model to user space through virtual files.
 
-The Linux kernel documentation contains more detailed information about
-[sysfs](https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt).
+The Linux kernel documentation contains more detailed information about [sysfs](https://www.kernel.org/doc/Documentation/filesystems/sysfs.txt).
 
 `u-dma-buf` locates information under this directory.
 
@@ -335,10 +300,8 @@ Each directory contains the files listed here.
 
 This example focusses on the `phys_addr` and `size` files.
 
-There are a number of other files of interest in this directory, mainly related
-to adjusting the synchronisation rules.  There is a guide to using 
-these files for achieving synchronisation on [github](https://github.com/ikwzm/udmabuf)
-if extending this basic example.
+There are a number of other files of interest in this directory, mainly related to adjusting the synchronisation rules. There is a guide to using 
+these files for achieving synchronisation on [github](https://github.com/ikwzm/udmabuf) if extending this basic example.
 
 To see a `phys_addr` value, `cat` the relevant file, in a similar manner to this.
 
@@ -360,16 +323,12 @@ similar manner to this.
 Note, the `phys_addr` field is in hexadecimal and `size` is in decimal.
 
 ## User space C Code
-This example highlights the key C code fragments.  Please refer to
-`/opt/microchip/pdma` for a thorough walk-through of all the source 
-code in the example.
+This example highlights the key C code fragments.  Please refer to `/opt/microchip/pdma` for a thorough walk-through of all the source code in the example.
 
 ### Getting names, base addresses, and sizes of pools
-This routine gets the `phys_addr` and `size` of the three pools used
-in this example.
+This routine gets the `phys_addr` and `size` of the three pools used in this example.
 
-The full `get_pools()` example function and supporting code
-is available at `opt\microchip\pdma`, but this listing highlights some key aspects:
+The full `get_pools()` example function and supporting code is available at `opt\microchip\pdma`, but this listing highlights some key aspects:
 
 ```
 #include <dirent.h>
@@ -457,14 +416,9 @@ while ((dp = readdir(dirp)) != NULL) {
 ```
 
 ### Opening and mapping pools into user space
-After locating each pool's physical address and size, this example
-uses `open()` to open the device associated with each pool. The
-example retains the file descriptor for that pool and then the
-example uses that file descriptor and `mmap()` to map the memory for each
-pool into user space.  
+After locating each pool's physical address and size, this example uses `open()` to open the device associated with each pool. The example retains the file descriptor for that pool and then the example uses that file descriptor and `mmap()` to map the memory for each pool into user space.  
 
-Refer to `pdma-ex.c` for details, but the key
-code pieces are highlighted here.
+Refer to `pdma-ex.c` for details, but the key code pieces are highlighted here.
 
 ```
 char udma_devname[256];
@@ -491,20 +445,16 @@ for (i = 0; i < 3; i++) {
 
 ### allocating and freeing buffers from pools
 
-Any number of increasing complex allocation/free strategies can
-be built to manage these pools.  
+Any number of increasing complex allocation/free strategies can be built to manage these pools.
 
 This example uses an extremely trivial strategy:
 
 * allocate a number of bytes by adjusting one single allocation ptr;
 * free a number of bytes by reducing to the same single allocation ptr.
 
-Obviously, this is not usable for production code and would need
-to be replaced.
+Obviously, this is not usable for production code and would need to be replaced.
 
-This example highlights the physical address and virtual address obtained
-from `mmap()` for each pool and how these addresses might be manipulated
-by dividing each pool into a number of buffers.
+This example highlights the physical address and virtual address obtained from `mmap()` for each pool and how these addresses might be manipulated by dividing each pool into a number of buffers.
 
 ```
 struct buf_t {
@@ -536,9 +486,7 @@ alloc(&pool[0], &dest, 1024);
 ```
 
 ### Unmapping and closing pools
-When finished with pools, the example uses `munmap()` to unmap the memory associated with the pool
-from user space and uses the `close()` call to close the file descriptor associated with 
-the device controlling that memory. 
+When finished with pools, the example uses `munmap()` to unmap the memory associated with the pool from user space and uses the `close()` call to close the file descriptor associated with the device controlling that memory. 
 
 Again, refer to `pdma-ex.c` for details, but the use of `munmap()` and `close()` are shown here.
 
@@ -552,9 +500,7 @@ for (i = 0; i < 3; i++) {
 ```
 
 ### Using `memcpy()` to copy buffers
-In user space, a developer can copy, move, and set up these
-buffers using `memcpy()`, `memset()`, etc on the
-virtual addresses of these buffers.
+In user space, a developer can copy, move, and set up these buffers using `memcpy()`, `memset()`, etc on the virtual addresses of these buffers.
 
 ```
 	size_t xfer_sz = min(dest.sz, src.sz);
@@ -563,21 +509,12 @@ virtual addresses of these buffers.
 ```
 
 ### Using PDMA to copy buffers
-Another way to interact with these buffers is to use their
-physical addresses in conjunction with the PolarFire SoC
-Platform DMA engine.
+Another way to interact with these buffers is to use their physical addresses in conjunction with the PolarFire SoC Platform DMA engine.
 
-Generally, this will be significantly faster than using `memcpy()`.
-For buffers with sizes less than approximately 4 KB, the static setup 
-time for PDMA may outweigh the more efficient 'per-byte' transfer time; as 
-the buffer size increases.  the PDMA is usually faster than `memcpy()`
- - typically transferring approximately 5 times faster.
+Generally, this will be significantly faster than using `memcpy()`. For buffers with sizes less than approximately 4 KB, the static setup time for PDMA may outweigh the more efficient 'per-byte' transfer time; as the buffer size increases.  the PDMA is usually faster than `memcpy()` - typically transferring approximately 5 times faster.
 
 #### PDMA in the Kernel
-One way to interact with the PDMA from a User application
-is to expose the device using the UIO framework and directly
-control it from user space.  Its a fairly simple device so
-that probably makes sense for this example application.
+One way to interact with the PDMA from a User application is to expose the device using the UIO framework and directly control it from user space.  Its a fairly simple device so that probably makes sense for this example application.
 
 ##### UIO PDMA Driver
 By default, PolarFire SoC's `yocto` distribution ships with SiFive's PDMA driver bound to the PDMA hardware in the device tree file.
@@ -586,46 +523,33 @@ This example switches out that default driver and replaces it with a UIO driver.
 
 #### PDMA Hardware
 
-The SiFive Platform DMA (PDMA) engine has memory mapped control registers accessed over a slave
-interface to allow software to set up DMA transfers.  It also has a bus master port into the bus fabric
-to allow it to autonously transfer data between slave devices and main memory or to rapidly copy data
-between two locations in memory. The PDMA unit can support 4 independent simultaneous DMA transfers
-using different PDMA channels and can generate PLIC interrupts.
+The SiFive Platform DMA (PDMA) engine has memory mapped control registers accessed over a slave interface to allow software to set up DMA transfers. It also has a bus master port into the bus fabric to allow it to autonously transfer data between slave devices and main memory or to rapidly copy data between two locations in memory. The PDMA unit can support 4 independent simultaneous DMA transfers using different PDMA channels and can generate PLIC interrupts.
 
-Chapter 12 of the SiFive [FU540 Manual](https://static.dev.sifive.com/FU540-C000-v1.0.pdf) contains more details about
-the SiFive PDMA used on PolarFire SoC, including its register map.
+Chapter 12 of the SiFive [FU540 Manual](https://static.dev.sifive.com/FU540-C000-v1.0.pdf) contains more details about the SiFive PDMA used on PolarFire SoC, including its register map.
 
 #### Userspace I/O (UIO)
 
-For many types of devices, creating a Linux kernel driver is overkill. All that is really needed is some way
-to handle an interrupt and provide access to the memory space of the device.  The logic of controlling the
-device does not necessarily have to be within the kernel.  To address this situation, the user space I/O system (UIO)
-was developed.
+For many types of devices, creating a Linux kernel driver is overkill. All that is really needed is some way to handle an interrupt and provide access to the memory space of the device.  The logic of controlling the device does not necessarily have to be within the kernel.  To address this situation, the user space I/O system (UIO) was developed.
 
 Further details about UIO can be found in the [UIO Howto](https://www.kernel.org/doc/html/v4.14/driver-api/uio-howto.html).
 
 #### PDMA UIO driver
 This example uses a UIO driver to expose the hardware registers for the PDMA on PolarFire SoC to user space.
 
-UIO devices only handle one interrupt and the SiFive PDMA generates 8. So, the Microchip
-PDMA UIO driver creates 8 PDMA UIO devices.
+UIO devices only handle one interrupt and the SiFive PDMA generates 8. So, the Microchip PDMA UIO driver creates 8 PDMA UIO devices.
 
 This UIO driver exposes a UIO driver for the PDMA hardware which:
 
 * maps in the register space for the PDMA hardware into user space addressable memory
 * creates 8 devices (one for each interrupt source)
 
-There are 4 channels on the PDMA and each channel has 2 possible interrupt sources,
-making a total of 8 possible interrupt sources.
+There are 4 channels on the PDMA and each channel has 2 possible interrupt sources, making a total of 8 possible interrupt sources.
 Each channel has a `done` interrupt and an `error` interrupt associated with it.
 
-The UIO driver converts each of these interrupt source into a device.  As a
-result, there is a `/dev/pdma` device for each channel (to which `done` interrupts
-for each channel are routed and a `/dev/pdmaerr` device for each channel (to which
+The UIO driver converts each of these interrupt source into a device.  As a result, there is a `/dev/pdma` device for each channel (to which `done` interrupts for each channel are routed and a `/dev/pdmaerr` device for each channel (to which
 `error` interrupts for each channel are routed.
 
-In user space, the example uses code based on Microchip's MSS Bare Metal driver to drive
-the PDMA.
+In user space, the example uses code based on Microchip's MSS Bare Metal driver to drive the PDMA.
 
 ##### Compiling UIO Driver
 
@@ -660,8 +584,7 @@ pdma: pdma@3000000 {
 ```
 which binds the Microchip UIO PDMA driver to the PDMA hardware instead.
 
-If the PDMA UIO driver is correctly configured in the device tree (dts) file, then Linux
-will display messages like the following when booting:
+If the PDMA UIO driver is correctly configured in the device tree (dts) file, then Linux will display messages like the following when booting:
 ```
 [    2.012814] pdma-uio 3000000.dma: Running Probe
 [    2.020249] pdma-uio 3000000.dma: Registered 8 devices
@@ -669,28 +592,16 @@ will display messages like the following when booting:
 
 ### User Space PDMA
 
-This section of the example is focussed on the user space side of the UIO PDMA
-driver.
+This section of the example is focussed on the user space side of the UIO PDMA driver.
 
-Similarly to finding the base address and size of the memory blocks managed
-by the `u-dma-buf` driver, this sample application needs to locate the names,
-physical addresses and sizes of the PDMA UIO devices and then open each
-device using `open()`, then using `mmap()` to map the memory for each device
-into user space memory along with setting up interrupt-handling code for 
-each of the 8 PDMA-related devices.
+Similarly to finding the base address and size of the memory blocks managed by the `u-dma-buf` driver, this sample application needs to locate the names, physical addresses and sizes of the PDMA UIO devices and then open each device using `open()`, then using `mmap()` to map the memory for each device into user space memory along with setting up interrupt-handling code for each of the 8 PDMA-related devices.
 
 #### Locating PDMA UIO devices
-This is example commands to browse the `/dev/` directory and the `sysfs` area
-to locate the 8 PDMA UIO devices that the example application uses to manage the PDMA
-hardware in user space.
+This is example commands to browse the `/dev/` directory and the `sysfs` area to locate the 8 PDMA UIO devices that the example application uses to manage the PDMA hardware in user space.
 
-To recap, there are 8 devices; 4 channels (and each channel has two devices; one
-device associated with the `done` interrupt for that channel and one device
-associated with the `error` interrupt for that channel.
+To recap, there are 8 devices; 4 channels (and each channel has two devices; one device associated with the `done` interrupt for that channel and one device associated with the `error` interrupt for that channel.
 
-There may be more UIO devices in the `/dev/` directory than the
-8 PDMA UIO devices that this example is concerned with; for example in 
-this listing, there are eleven UIO devices.
+There may be more UIO devices in the `/dev/` directory than the 8 PDMA UIO devices that this example is concerned with; for example in this listing, there are eleven UIO devices.
 
 ```
 # ls -la /dev/uio*
@@ -707,13 +618,11 @@ crw------- 1 root root 246,  9 Aug  1 02:24 /dev/uio9
 crw------- 1 root root 246, 10 Aug  1 02:24 /dev/uio10
 ```
 
-This code fragment illustrates finding which UIO devices are associated with the
-PDMA hardware. This example makes use of `sysfs` to locate the information it needs.
+This code fragment illustrates finding which UIO devices are associated with the PDMA hardware. This example makes use of `sysfs` to locate the information it needs.
 
 UIO drivers present in `sysfs` under the directory `/sys/class/uio/`.
 
-This listing shows that each of the eleven devices on the example system have a corresponding
-entry in the `/sys/class/uio` directory.
+This listing shows that each of the eleven devices on the example system have a corresponding entry in the `/sys/class/uio` directory.
 
 ```
 # ls -la /sys/class/uio/uio*
@@ -759,14 +668,12 @@ uio_lpddr4
 mss_can0
 ```
 
-In this example, `uio2` is one of the names (`pdma0`) that this example is
-searching for.
+In this example, `uio2` is one of the names (`pdma0`) that this example is searching for.
 ```
 # cat /sys/class/uio/uio2/name
 pdma0
 ```
-The other part of the `sysfs` sub-system that this example is concerned with is
-the `maps` sub-directory of each of the PDMA UIO devices.
+The other part of the `sysfs` sub-system that this example is concerned with is the `maps` sub-directory of each of the PDMA UIO devices.
 
 As an example, `uio2` has a `maps` subdirectory containing one map (`map0`).
 `map0` contains the following files.
@@ -779,8 +686,7 @@ offset
 size
 ```
 
-Again, using `sysfs`, this example uses the `addr` file to locate the base address of the PDMA
-hardware's register map and the `size` file to locate the size of the PDMA hardware register map from user space, as illustrated here.
+Again, using `sysfs`, this example uses the `addr` file to locate the base address of the PDMA hardware's register map and the `size` file to locate the size of the PDMA hardware register map from user space, as illustrated here.
 
 ```
 # cat /sys/class/uio/uio2/maps/map0/addr
@@ -794,22 +700,15 @@ hardware's register map and the `size` file to locate the size of the PDMA hardw
 ```
 
 #### Locating PDMA UIO Devices using C Code
-The example can find the UIO devices corresponding to the PDMA hardware, find the base address of
-the PDMA hardware and the memory size required by the PDMA hardware.
+The example can find the UIO devices corresponding to the PDMA hardware, find the base address of the PDMA hardware and the memory size required by the PDMA hardware.
 
-Similarly to the u-dma-buf example code above, the example code will open those UIO devices, 
-use `mmap()` to map those base addresses and sizes into user space.
+Similarly to the u-dma-buf example code above, the example code will open those UIO devices, use `mmap()` to map those base addresses and sizes into user space.
 
-The example will compile with a PDMA driver based on Microchip's MSS Bare Metal PDMA driver.
-There are details about Microchip's MSS Bare Metal drivers on
-[github](https://github.com/polarfire-soc/polarfire-soc-bare-metal-library), including the
-Bare Metal code for the PDMA driver and a sample Bare Metal application for PDMA.
+The example will compile with a PDMA driver based on Microchip's MSS Bare Metal PDMA driver. There are details about Microchip's MSS Bare Metal drivers on [github](https://github.com/polarfire-soc/polarfire-soc-bare-metal-library), including the Bare Metal code for the PDMA driver and a sample Bare Metal application for PDMA.
 
 The example shows an sample `pdmacpy()` function that use this PDMA hardware from user space.
 
-Again, refer to `pdma-ex.c` for details, but this lists the code for locating the
-UIO devices associated with the PDMA hardware, storing the device name, th base address and the memory size for each
-device.
+Again, refer to `pdma-ex.c` for details, but this lists the code for locating the UIO devices associated with the PDMA hardware, storing the device name, th base address and the memory size for each device.
 ```
 static int get_pdma_devs(struct pdma_t pdma[])
 {
@@ -883,8 +782,7 @@ static int map_pdma_devs(struct pdma_t * pdmas, int num)
         return 0;
 ```
 
-When the example finishes with the PDMA UIO devices, it uses `munmap()`  to unmap
-the mapped memory and `close()` to close the UIO device. 
+When the example finishes with the PDMA UIO devices, it uses `munmap()`  to unmap the mapped memory and `close()` to close the UIO device. 
 
 ```
 static void unmap_pdma_devs(struct pdma_t pdmas[])
@@ -899,40 +797,25 @@ static void unmap_pdma_devs(struct pdma_t pdmas[])
 ```
 
 #### Linking with MSS Driver
-This example adapts the Microchip MSS Bare Metal PDMA driver to run
-in user space on Linux.
+This example adapts the Microchip MSS Bare Metal PDMA driver to run in user space on Linux.
 
-The main change to the MSS Bare Metal PDMA Driver is it is adapted
-to use a variable to hold the virtual address of the base
-address of the driver instead of statically defining that base address as a physical
-address.
+The main change to the MSS Bare Metal PDMA Driver is it is adapted to use a variable to hold the virtual address of the base address of the driver instead of statically defining that base address as a physical address.
 
 The adapted driver is supplied in the example directory as `mss-pdma.c` and `mss-pdma.h`.
 
 #### `pdmacpy()` Example
-The example `pdmacpy()` routine consists of adapting the 
-Bare Metal example to pick a PDMA channel, set up a physical address for source
-buffer and destination buffer and a size field and use the Bare Metal driver
-to manage the transfer.
+The example `pdmacpy()` routine consists of adapting the Bare Metal example to pick a PDMA channel, set up a physical address for source buffer and destination buffer and a size field and use the Bare Metal driver to manage the transfer.
 
-The example code waits on two interrupts - either the `done` interrupt or the `error`
-interrupt associated with the channel in use.
+The example code waits on two interrupts - either the `done` interrupt or the `error` interrupt associated with the channel in use.
 
 #### Timing `memcpy()` and `pdmacpy()`
-The example times each copy - whether `memcpy()` or `pdmacpy()`.  It does this
-by taking a `timeval` before each copy starts and another `timeval` after the copy
-ends.  The example converts the two `timeval`s to usec values and subtracting 
-the start `timeval` from the end `timeval`. It pretty prints 
-the result of the subtraction as minutes, seconds, and usecs and displays that result.
+The example times each copy - whether `memcpy()` or `pdmacpy()`.  It does this by taking a `timeval` before each copy starts and another `timeval` after the copy ends.  The example converts the two `timeval`s to usec values and subtracting the start `timeval` from the end `timeval`. It pretty prints the result of the subtraction as minutes, seconds, and usecs and displays that result.
 
 #### Results
 
-This table summarises the length of time taken by `memcpy()`
-and for `pdmacpy()`.  The `pdmacpy()` value is averaged across
-the time taken for each channel to complete the example copy.
+This table summarises the length of time taken by `memcpy()` and for `pdmacpy()`.  The `pdmacpy()` value is averaged across the time taken for each channel to complete the example copy.
 
-These rates are captured for the three types of memory on PolarFire SoC; cached, non-cached, and
-non-cached via write-combine buffer.
+These rates are captured for the three types of memory on PolarFire SoC; cached, non-cached, and non-cached via write-combine buffer.
 
 | Memory Type | Transfer Size | `memcpy()` speed | PDMA speed |
 | ----------- | ------------- | ------------ | ------------- |
@@ -941,11 +824,9 @@ non-cached via write-combine buffer.
 | DDR-NC-WCB  | 128 MB         | 42.80 MB/sec | 359.08 MB/sec |
 
 ### Conclusions
-This pattern is useful for developers moving large amounts of data where those
-developers control the memory allocation scheme.
+This pattern is useful for developers moving large amounts of data where those developers control the memory allocation scheme.
 
-Using the PDMA from user space is faster than `memcpy()` for transfer sizes 
-above approximately 1 KB. The advantage varies with memory type:
+Using the PDMA from user space is faster than `memcpy()` for transfer sizes above approximately 1 KB. The advantage varies with memory type:
 
 * PDMA is approximately 5 times faster than `memcpy()` in cached DDR transfers;
 * PDMA is approximately 15 times faster than `memcpy()` in non-cached DDR transfers;
