@@ -702,9 +702,9 @@ Similarly to the u-dma-buf example code above, the example code will open those 
 
 The example will compile with a PDMA driver based on Microchip's MSS Bare Metal PDMA driver. There are details about Microchip's MSS Bare Metal drivers on [github](https://github.com/polarfire-soc/polarfire-soc-bare-metal-library), including the Bare Metal code for the PDMA driver and a sample Bare Metal application for PDMA.
 
-The example shows an sample `pdmacpy()` function that use this PDMA hardware from user space.
+The example shows a sample `pdmacpy()` function that use this PDMA hardware from user space.
 
-Again, refer to `pdma-ex.c` for details, but this lists the code for locating the UIO devices associated with the PDMA hardware, storing the device name, th base address and the memory size for each device.
+Again, refer to `pdma-ex.c` for details, but this lists the code for locating the UIO devices associated with the PDMA hardware, storing the device name, the base address and the memory size for each device.
 ```
 static int get_pdma_devs(struct pdma_t pdma[])
 {
