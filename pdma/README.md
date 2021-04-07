@@ -1,4 +1,4 @@
-# Linux; PolarFire SoC; Transferring Large Blocks of Data between User Space and FPGA Fabric
+# Transferring Large Blocks of Data between Linux User Space and FPGA Fabric on PolarFire SoC
 
 One task that often needs to be done on devices with FPGA fabrics is transferring large blocks of memory between user space Linux and the fabric.
 
