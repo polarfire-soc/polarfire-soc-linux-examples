@@ -48,6 +48,7 @@ non-cached memory (with physical memory behind the non-cacheable memory regions 
 two addresses, one address via the write combine buffer and one address without the write-combine buffer.
 
 So, by default, on Icicle-Kit, the system memory map defaults to:
+
 |Region Name   | Region Base  | Region Size | Region Properties				       |
 |--------------|--------------|-------------|------------------                                |
 |DDRC-LO       | 0x80000000   | 768 MB	    | 32-bit address, cached                           |
@@ -58,6 +59,7 @@ So, by default, on Icicle-Kit, the system memory map defaults to:
 [1] NB: This 256MB is a shared view of a single physical memory area.
 
 By default, the Linux device tree further partitions the memory map by:
+
 a) allocating 32 MB in the 0x80000000 memory space for contiguous cached buffer allocation;
 b) allocating 128 MB in the 0xc0000000 for contiguous non-cached buffer allocation;
 c) allocating 128 MB in the 0xd0000000 for continguous non-cached buffer (wcb) allocation;
@@ -97,18 +99,18 @@ This leaves 288 MB of memory for other purposes.
 
 ### Using 'Reserved-Memory' to create pools
 
-By default with Icicle-Kit, the Linux device tree creates 3 buffers; 
-* one in the cached DDR address-space
-* one in the non-cached DDR address space, and
-* one in the non-cached write-combined DDR address space 
-using the 288 MB of memory reserved in the previous steps.
+By default with Icicle-Kit, the Linux device tree creates 3 buffers using the 288 MB of memory reserved in the previous steps:
+ 
+  * one in the cached DDR address space
+  * one in the non-cached DDR address space
+  * one in the non-cached write-combined DDR address space 
 
-These buffers are allocated as:
-* 32 MB buffer, cache-coherent;
-* 128 MB buffer, non-cache-coherent;
-* 128 MB buffer, non-cache-coherent, write combine buffered
+These buffers are all allocated in the 'LO' space, that is the 32-bit addressable memory space, as:
 
-all in the 'LO' space, that is the 32-bit addressable memory space.
+  * 32 MB buffer, cache-coherent;
+  * 128 MB buffer, non-cache-coherent;
+  * 128 MB buffer, non-cache-coherent, write combine buffered
+
 
 There are 3 `reserved-memory` stanzas in the device tree (dts) file; one for each buffer.
 
@@ -133,6 +135,7 @@ reserved-memory {
 		label = "fabricbuf-ddr-nc-wcb";
 	};
 };
+```
 
 Note, to be picked up by the Linux subsystem, the `reserved-memory` stanza must be at the top-level of
 the device tree (dts) file.
@@ -186,9 +189,10 @@ to user space.
 This example refers to these contiguous buffers in user space as 'pools'.
 
 This example enables:
-* access to one pool from 'cached' memory from user space
-* access to one pool from 'non-cached' memory from user space, and
-* access to one pool which operates via the non-cached write-combine buffer from user space.
+
+  * access to one pool from 'cached' memory from user space
+  * access to one pool from 'non-cached' memory from user space, and
+  * access to one pool which operates via the non-cached write-combine buffer from user space.
 
 This are the relevant device tree stanzas, one for each buffer.  Each buffer has a size and a reference to a memory
 region, and each buffer now has a device name.  This example uses these device names to locate the buffers 
@@ -221,7 +225,8 @@ in user space.
 		sync-mode = <3>;
 
 	};
-`
+```
+
 If a designer changes the size of a fabricbuf, they probably want to adjust the
 size of the fabricbuf here as well.
 
