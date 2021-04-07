@@ -7,18 +7,18 @@ This is one way to do that where the designer can control memory allocation.
 
 The design pattern used in this example is:
 
-* allocate blocks of physical memory that are outside Linux's general memory allocation strategy.
-        There may be specific requirements, particularly around the areas of
-  * allocating from cached memory, non-cached memory, or non-cached memory via the write-combine buffer
-  * allocating physically contiguous blocks of memory (to simplify design on fabric side)
-* use a kernel driver to manage these blocks of memory
-* in user space, map those blocks of memory as pools and allocate and free buffers from those pools 
-  using strategies, for example, static allocation or dynamic allocation analagous to `malloc()/free()`
-* transfer to/from these buffers using `memcpy()`
-* for performance reasons, the PDMA hardware is useful.  Extend the pattern to
-  * map in the PDMA hardware into user space
-  * drive the PDMA hardware using a port of the Microchip MSS Bare Metal PDMA driver
-  * use this PDMA hardware to manipulate the buffers
+  * allocate blocks of physical memory that are outside Linux's general memory allocation strategy. There may be specific requirements, particularly around the areas of:
+
+    * allocating from cached memory, non-cached memory, or non-cached memory via the write-combine buffer
+    * allocating physically contiguous blocks of memory (to simplify design on fabric side)
+
+  * use a kernel driver to manage these blocks of memory
+  * in user space, map those blocks of memory as pools and allocate and free buffers from those pools using strategies, for example, static allocation or dynamic allocation analagous to `malloc()/free()`
+  * transfer to/from these buffers using `memcpy()`
+  * for performance reasons, the PDMA hardware is useful. Extend the pattern to:
+    * map in the PDMA hardware into user space
+    * drive the PDMA hardware using a port of the Microchip MSS Bare Metal PDMA driver
+    * use this PDMA hardware to manipulate the buffers
 
 ## DDR on Icicle-Kit
 There is 2 GB of DDR on Icicle-Kit.  PolarFire SoC has extensive capabilities
