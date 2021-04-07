@@ -747,8 +747,7 @@ static int get_pdma_devs(struct pdma_t pdma[])
 
 #### Opening, mapping, unmapping and closing PDMA UIO devices
 
-This section illustrates the code that the example uses to
-open and memory map the PDMA UIO devices.
+This section illustrates the code that the example uses to open and memory map the PDMA UIO devices.
 
 ```
 static int map_pdma_devs(struct pdma_t * pdmas, int num)
