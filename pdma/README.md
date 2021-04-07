@@ -439,7 +439,7 @@ for (i = 0; i < 3; i++) {
 
 ```
 
-### allocating and freeing buffers from pools
+### Allocating and freeing buffers from pools
 
 Any number of increasing complex allocation/free strategies can be built to manage these pools.
 
@@ -510,7 +510,7 @@ Another way to interact with these buffers is to use their physical addresses in
 Generally, this will be significantly faster than using `memcpy()`. For buffers with sizes less than approximately 4 KB, the static setup time for PDMA may outweigh the more efficient 'per-byte' transfer time; as the buffer size increases.  the PDMA is usually faster than `memcpy()` - typically transferring approximately 5 times faster.
 
 #### PDMA in the Kernel
-One way to interact with the PDMA from a User application is to expose the device using the UIO framework and directly control it from user space.  Its a fairly simple device so that probably makes sense for this example application.
+One way to interact with the PDMA from a user application is to expose the device using the UIO framework and directly control it from user space.  It's a fairly simple device so that probably makes sense for this example application.
 
 ##### UIO PDMA Driver
 By default, PolarFire SoC's `yocto` distribution ships with SiFive's PDMA driver bound to the PDMA hardware in the device tree file.
