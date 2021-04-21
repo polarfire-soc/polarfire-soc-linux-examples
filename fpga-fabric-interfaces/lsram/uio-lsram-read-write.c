@@ -21,7 +21,7 @@
 #define UIO_DEVICE_PATH_LEN	(32)
 #define NUM_UIO_DEVICES		(32)
 
-char uio_id_str[] = "fpga_lpddr4";
+char uio_id_str[] = "fpga_lsram";
 char sysfs_template[] = "/sys/class/uio/uio%d/%s";
 
 /*****************************************/

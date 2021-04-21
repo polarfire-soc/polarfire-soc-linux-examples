@@ -19,7 +19,7 @@
 #include <poll.h>
 #include <stdlib.h>
 
-#define UIO_LSRAM_DEVNAME	"fpga_lpddr4"
+#define UIO_LSRAM_DEVNAME	"fpga_lsram"
 #define UIO_DMA_DEVNAME		"fpga_dma0"
 
 #define MMAP_SIZE		0x10000
