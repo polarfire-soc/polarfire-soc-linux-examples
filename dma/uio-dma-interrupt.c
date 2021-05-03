@@ -18,140 +18,148 @@
 #include <stdio.h>
 #include <poll.h>
 #include <stdlib.h>
+#include "fdma.h"
 
-#define UIO_LSRAM_DEVNAME	"fpga_lsram"
-#define UIO_DMA_DEVNAME		"fpga_dma0"
+#define UIO_LSRAM_DEVNAME      "fpga_lsram"
+#define UIO_DMA_DEVNAME        "fpga_dma0"
 
-#define MMAP_SIZE		0x10000
+#define MMAP_SIZE              0x10000
 
-#define FILENAME_LEN		(256)
+#define FILENAME_LEN           (256)
 
-#define LSRAM_BASE		(0x61000000)
-#define UNCACHED_DDR_BASE	(0xc0000000)
+#define LSRAM_BASE             0x61000000U
+#define UNCACHED_DDR_BASE      0xC0000000U
+#define SYSFS_PATH_LEN         (128)
+#define ID_STR_LEN             (32)
+#define UIO_DEVICE_PATH_LEN    (32)
+#define NUM_UIO_DEVICES        (32)
 
+static char uio_id_str_fdma[] = UIO_DMA_DEVNAME;
+static char uio_id_str_lsram[] = UIO_LSRAM_DEVNAME;
+static char sysfs_template[] = "/sys/class/uio/uio%d/%s";
 
-static void get_uio_devname(char *uio, char *devname, char *uioname)
+static uint32_t get_memory_size(char *sysfs_path, char *uio_device)
 {
-    char root[] = "/sys/class/uio/";
-    char name[] = "name";
-    char bufinfo[FILENAME_LEN];
     FILE *fp;
+    uint32_t sz;
 
-    snprintf(bufinfo, sizeof(bufinfo), "%s/%s/%s",
-         root, uio, name);
-
-    fp = fopen(bufinfo, "r");
-    if (!fp) {
-        fprintf(stderr, "failed to open %s\n", bufinfo);
-        devname = NULL;
-        uioname = NULL;
-        return;
+    /*
+     * open the file the describes the memory range size.
+     * this is set up by the reg property of the node in the device tree
+     */
+    fp = fopen(sysfs_path, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "unable to determine size for %s\n", uio_device);
+        exit(0);
     }
-
-    fscanf(fp, "%16s", devname);
-    strcpy(uioname, uio);
+    fscanf(fp, "0x%016X", &sz);
     fclose(fp);
+    return sz;
 }
 
-static int get_uio_dev(char * id, char * uiodev)
+static int get_uio_device(char * id)
 {
-    char root[] = "/sys/class/uio/";
-    char bufinfo[FILENAME_LEN];
-    char devname[FILENAME_LEN];
-    char uioname[FILENAME_LEN];
-    DIR *dirp;
-    struct dirent *dp;
-    char *bufname;
-    int found = 0;
+    FILE *fp;
+    int i;
+    size_t len;
+    char file_id[ID_STR_LEN];
+    char sysfs_path[SYSFS_PATH_LEN];
 
-    snprintf(bufinfo, sizeof(bufinfo), "%s", root);
-    dirp = opendir(bufinfo);
-
-    while ((dp = readdir(dirp)) != NULL) {
-        if (dp->d_name) {
-            if (!strcmp(dp->d_name, ".") ||
-                !strcmp(dp->d_name, "..")) {
-                ;
-            } else {
-                bufname = (char *)malloc(strlen(dp->d_name)+1);
-                strncpy(bufname, dp->d_name,
-                    strlen(dp->d_name)+1);
-
-                get_uio_devname(bufname, devname, uioname);
-                if (*devname == 0) {
-                    free(bufname);
-                    continue;
-                }
-
-                if (strcmp(id, devname) == 0) {
-                    found = 1;
-                    sprintf(uiodev, "/dev/%s", uioname);
-                }
-
-                free(bufname);
-            }
+    for (i = 0; i < NUM_UIO_DEVICES; i++) {
+        snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, i, "/name");
+        fp = fopen(sysfs_path, "r");
+        if (fp == NULL)
+            break;
+        fscanf(fp, "%32s", file_id);
+        len = strlen(id);
+        if (len > ID_STR_LEN-1)
+            len = ID_STR_LEN-1;
+        if (strncmp(file_id, id, len) == 0) {
+            return i;
         }
     }
-    closedir(dirp);
-
-    return found;
+    return -1;
 }
 
 int main(void)
 {
-    char cmd;	
+    char cmd;
     uint32_t rval = 0;
     uint32_t cval = 0;
     volatile uint32_t i =0;
-    int32_t intInfo;
     ssize_t readSize;
     uint32_t pending = 0;
     int uioFd_0;
     int uioFd_1;
     int uioFd_2;
-    volatile uint32_t *ddr_mem, *dma_mem, *lsram_mem;
-    int res;
-    char uio_lsram_devname[FILENAME_LEN];
-    char uio_dma_devname[FILENAME_LEN];
+    int ret=0;
+    volatile fdma_t * fdma_dev;
+    volatile uint32_t *ddr_mem, *lsram_mem;
+    char uio_device[UIO_DEVICE_PATH_LEN];
+    char sysfs_path[SYSFS_PATH_LEN];
+    uint32_t mmap_size;
+    int index;
 
-    // Find the UIO device correpoding to LSRAM
-    res = get_uio_dev(UIO_LSRAM_DEVNAME, uio_lsram_devname);
-    if (res <= 0) {
-        printf("failed to find entry for %s in /sys/class\n",
-               UIO_LSRAM_DEVNAME);
-        printf("can't locate device for %s\n", UIO_LSRAM_DEVNAME);
-        exit(0);
+    printf("locating device for %s\n", uio_id_str_fdma);
+    index = get_uio_device(uio_id_str_fdma);
+    if (index < 0) {
+        fprintf(stderr, "can't locate uio device for %s\n", uio_id_str_fdma);
+        return -1;
     }
 
-    // Find the UIO device correpoding to DMA
-    res = get_uio_dev(UIO_DMA_DEVNAME, uio_dma_devname);
-    if (res <= 0) {
-        printf("failed to find entry for %s in /sys/class\n",
-               UIO_DMA_DEVNAME);
-        printf("can't locate device for %s\n", UIO_DMA_DEVNAME);
-        exit(0);
-    }
+    snprintf(uio_device, UIO_DEVICE_PATH_LEN, "/dev/uio%d", index);
+    printf("located %s\n", uio_device);
 
-    // Open LSRAM device
-    uioFd_0 = open(uio_lsram_devname, O_RDWR);
-    if (uioFd_0 < 0) {
-        fprintf(stderr, "Cannot open %s (%s): %s\n",
-            uio_lsram_devname, UIO_LSRAM_DEVNAME, strerror(errno));
-        exit(0);
+    uioFd_0 = open(uio_device, O_RDWR);
+    if(uioFd_0 < 0) {
+        fprintf(stderr, "cannot open %s: %s\n", uio_device, strerror(errno));
+        return -1;
     } else {
-        printf("Opened %s (%s)\n", uio_lsram_devname, UIO_LSRAM_DEVNAME );
+        printf("opened %s (r,w)\n", uio_device);
+    }
+    snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, index, "maps/map0/size");
+    mmap_size = get_memory_size(sysfs_path, uio_device);
+    if (mmap_size == 0) {
+        fprintf(stderr, "bad memory size for %s\n", uio_device);
+        return -1;
+    }
+    fdma_dev = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uioFd_0, 0);
+    if (fdma_dev == MAP_FAILED) {
+        fprintf(stderr, "cannot mmap %s: %s\n", uio_device, strerror(errno));
+        return -1;
+    } else {
+        printf("mapped 0x%x bytes for %s\n", mmap_size, uio_device);
     }
 
-    /* Map in LSRAM */
-    lsram_mem = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE,
-             MAP_SHARED, uioFd_0, 0 * getpagesize());
-    if (lsram_mem == MAP_FAILED){
-        fprintf(stderr, "Cannot mmap: %s\n", strerror(errno));
-        close(uioFd_0);
-        exit(0);
+    printf("locating device for %s\n", uio_id_str_lsram);
+    index = get_uio_device(uio_id_str_lsram);
+    if (index < 0) {
+        fprintf(stderr, "can't locate uio device for %s\n", uio_id_str_fdma);
+        return -1;
+    }
+
+    snprintf(uio_device, UIO_DEVICE_PATH_LEN, "/dev/uio%d", index);
+    printf("located %s\n", uio_device);
+
+    uioFd_1 = open(uio_device, O_RDWR);
+    if(uioFd_1 < 0) {
+        fprintf(stderr, "cannot open %s: %s\n", uio_device, strerror(errno));
+        return -1;
     } else {
-        printf("mmap for %s (%s) successful\n",
-               uio_lsram_devname, UIO_LSRAM_DEVNAME);
+        printf("opened %s (r,w)\n", uio_device);
+    }
+    snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, index, "maps/map0/size");
+    mmap_size = get_memory_size(sysfs_path, uio_device);
+    if (mmap_size == 0) {
+        fprintf(stderr, "bad memory size for %s\n", uio_device);
+        return -1;
+    }
+    lsram_mem = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uioFd_1, 0);
+    if (lsram_mem == MAP_FAILED) {
+        fprintf(stderr, "cannot mmap %s: %s\n", uio_device, strerror(errno));
+        return -1;
+    } else {
+        printf("mapped 0x%x bytes for %s\n", mmap_size, uio_device);
     }
 
     /* Map in uncached DDR */
@@ -167,36 +175,6 @@ int main(void)
         printf("mmap at %x successful\n", UNCACHED_DDR_BASE);
     }
 
-    //  Open the DMA device
-    uioFd_1 = open(uio_dma_devname, O_RDWR);
-    if (uioFd_1 < 0) {
-        fprintf(stderr, "Cannot open %s (%s): %s\n",
-            uio_dma_devname,
-            UIO_DMA_DEVNAME,
-            strerror(errno));
-        return -1;
-    } else {
-        printf("Opened %s (%s)\n",
-            uio_dma_devname,
-            UIO_DMA_DEVNAME);
-    }
-
-    // Map in DMA device memory
-    dma_mem = mmap(NULL, 0x1000, PROT_READ | PROT_WRITE, MAP_SHARED,
-               uioFd_1, 0 * getpagesize());
-    if (dma_mem == MAP_FAILED) {
-        fprintf(stderr, "Cannot mmap %s (%s) : %s\n",
-            uio_dma_devname,
-            UIO_DMA_DEVNAME,
-            strerror(errno));
-        close(uioFd_1);
-        return -1;
-    } else {
-        printf("mmap for %s (%s) successful\n",
-            uio_dma_devname,
-            UIO_DMA_DEVNAME);
-    }
-    
     while(1){
         printf("\n\t # Choose one of  the following options: \n\t Enter 1 to perform memory test on LSRAM \n\t Enter 2 to write data from LSRAM to LPDD4 via DMA access  \n\t Enter 3 to Exit\n");
         scanf("%c%*c",&cmd);
@@ -236,25 +214,29 @@ int main(void)
             }
             printf("\nInitialized LSRAM (64KB) with incremental pattern.\n");
             printf("\nFabric DMA controller configured for LSRAM to LPDDR4 data transfer.\n");
-            printf("DMAC Version: %x\n", *(dma_mem));   //version control register
 
-            *(dma_mem + (0x14 / 4))  = 0x00000001;  //Interrupt mask
+            printf("DMAC Version = 0x%x \n\r", fdma_dev->version_reg);
 
-            *(dma_mem + (0x68 / 4))  = LSRAM_BASE;  // Source address
-            printf("\n\r\tSource Address (LSRAM) - %x \n\r", LSRAM_BASE);
+            fdma_dev->irq_mask_reg = FDMA_IRQ_MASK;
 
-            *(dma_mem + (0x6C / 4))  = UNCACHED_DDR_BASE;  //destination address
+            /*0x68  Source current address. */
+            fdma_dev->exec_source = LSRAM_BASE;
+            printf("\n\r\tSource Address (LSRAM) - 0x%x \n\r", LSRAM_BASE);
+
+            /*0x6C  Destination current address. */
+            fdma_dev->exec_destination = UNCACHED_DDR_BASE;
             printf("\n\r\tDestination Address (LPDDR4) - %x \n\r", UNCACHED_DDR_BASE);
 
-            *(dma_mem + (0x64 / 4))  = 0x00010000;  //byte count
-            printf("\n\r\tByte count - 0x10000 \n\r");
+            fdma_dev->exec_bytes = FDMA_TR_SIZE;
+            printf("\n\r\tByte count - 0x%x \n\r", FDMA_TR_SIZE);
 
-            *(dma_mem + (0x60 / 4))  = 0x0000F005;  //data ready,descriptor valid,sop,dop,chain
+            fdma_dev->exec_config = FDMA_CONF_VAL;
 
-            *(dma_mem + (0x04 / 4))  = 0x00000001;  //start operation register
+            /*0x04  Start Register */
+            fdma_dev->start_op_reg = FDMA_START;
             printf("\n\r\tDMA Transfer Initiated... \n\r");
 
-            readSize = read(uioFd_1, &pending, sizeof(intInfo));
+            readSize = read(uioFd_0, &pending, sizeof(pending));
             if(readSize < 0){
                 fprintf(stderr, "Cannot wait for uio device interrupt: %s\n",
                 strerror(errno));
@@ -279,18 +261,29 @@ int main(void)
          printf("\n***** Data Verification Passed *****\n");
 
         printf("\n Displaying interrupt count by executing \"cat /proc/interrupts \":\n");
-        system("cat /proc/interrupts");
+        ret = system("cat /proc/interrupts");
+        if(ret < 0) {
+            printf("unable to run system cmd\n");
+        }
         printf("\n\n");
     } else {
         printf("Enter either 1, 2, and 3\n");
     }
-
-    }	
-    munmap((void*)lsram_mem, MMAP_SIZE);
-    munmap((void*)ddr_mem, MMAP_SIZE);
-    munmap((void*)dma_mem, 0x1000);
+    }
+    ret = munmap((void*)lsram_mem, MMAP_SIZE);
+    if(ret < 0) {
+        printf("unable to unmap the lsram_mem\n");
+    }
+    ret = munmap((void*)ddr_mem, MMAP_SIZE);
+    if(ret < 0) {
+        printf("unable to unmap the ddr_mem\n");
+    }
+    ret = munmap((void*)fdma_dev, FDMA_MAP_SIZE);
+    if(ret < 0) {
+        printf("unable to unmap the fdma mem\n");
+    }
     close(uioFd_0);
     close(uioFd_1);
+    close(uioFd_2);
     return 0;
 }
-
