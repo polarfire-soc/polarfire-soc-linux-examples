@@ -14,10 +14,10 @@
 #define BUFFSIZE 4096
 #define ALGO "SHA384"
 #define SIGN_SIZE 104
-#define SIGN_READ_BYTES (3 + 2 * SIGN_SIZE) //3 for status and a space, 192 chars for the hex signature (96 bytes)
+#define SIGN_READ_BYTES (3 + 2 * SIGN_SIZE) /* 3 for status and a space, 192 chars for the hex signature (96 bytes) */
 #define SIGN_DEVICE "/dev/mpfs_signature"
 #define CERT_SIZE 1024
-#define CERT_READ_BYTES (3 + 2 * CERT_SIZE) //3 for status and a space, 2048 chars for the hex signature (96 bytes)
+#define CERT_READ_BYTES (3 + 2 * CERT_SIZE) /* 3 for status and a space, 2048 chars for the hex signature (96 bytes) */
 #define CERT_DEVICE "/dev/mpfs_device_cert_num"
 
 void get_hash(const unsigned char *msg, const size_t msg_len, unsigned char *hash, size_t *hash_len)
@@ -40,7 +40,7 @@ void get_hash(const unsigned char *msg, const size_t msg_len, unsigned char *has
 void get_signature(const unsigned char *hash, const size_t hash_len, const size_t outbufflen, unsigned char *outbuff)
 {
     unsigned char inbuff[BUFFSIZE];
-    unsigned char *buff = inbuff + 3; // + 3 to skip response code
+    unsigned char *buff = inbuff + 3; /* + 3 to skip response code */
     int inc;
     FILE *fptr;
 
@@ -73,7 +73,7 @@ void get_signature(const unsigned char *hash, const size_t hash_len, const size_
 void get_cert(const size_t outbufflen, unsigned char *outbuff)
 {
     unsigned char inbuff[BUFFSIZE];
-    unsigned char *buff = inbuff + 3; // + 3 to skip response code
+    unsigned char *buff = inbuff + 3; /* + 3 to skip response code */
     FILE *fptr;
 
     if ((fptr = fopen(CERT_DEVICE, "r")) == NULL)
@@ -115,7 +115,7 @@ int main()
     ERR_load_crypto_strings();
     ERR_load_BIO_strings();
 
-    /* get the message hashed using via openssl */
+    /* get the message hashed using openssl */
     get_hash(msg, msg_len, hash, &hash_len);
 
     printf("\r\nmsg: %s\r\nhash: ", msg);
@@ -123,7 +123,7 @@ int main()
         printf("%02x", hash[inc]);
     printf(" \r\nhash length: %zu\r\n", hash_len);
 
-    /* use the digital signature service to sign the 48 byte hash */
+    /* use the digital signature service to sign the 48-byte hash */
     get_signature(hash, hash_len, SIGN_SIZE, sign_raw);
 
     printf("sig: ");

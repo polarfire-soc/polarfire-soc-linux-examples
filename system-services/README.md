@@ -31,9 +31,9 @@ e - to exit this program
 Enter one of the above characters and press enter to request the service.
 
 ## signature-verification-demo
-This example demonstrates how to use two services, the Digital Signature service and the Device Certificate service to sign a message and verify that signature.     
-The Digital Signature service takes a user supplied 48 byte SHA384 hash and signs it with the devices private EC key. The second operational mode is used, resulting in a P-384 ECDSA signature in DER format.     
-The Device Certificate services returns the Device Supply Chain Assurance certificate, useful in this case as the certificate contains the public EC key.
+This example demonstrates how to use two services, the Digital Signature service and the Device Certificate service to sign a message and verify that signature:
+- The Digital Signature service takes a user supplied 48-byte SHA384 hash and signs it with the device's private EC key. The second operational mode is used, resulting in a P-384 ECDSA signature in DER format.     
+- The Device Certificate service returns the Device Supply Chain Assurance certificate, useful in this case as the certificate contains the public EC key.
 
 Before running the demonstration program, build it by running make:
 ```
@@ -45,12 +45,12 @@ Once built, it can be run:
 ./signature-verification-demo
 ```
 
-The demonstration runs without interaction from the user, first getting the SHA384 hash of an arbitrary string using the openssl library.
-
-This 48 byte hash is then sent to the system controller via the mailbox, by writing to the signature service's device file, and the device file is then read back to acquire signature in 104 byte DER format.
-
-openssl functions are used once again to convert this raw DER signature into a usable object.
-
-To verify the signature, the public key is now retrieved from the device certificate. Once the cert has been read in raw form from the certificate device file, openssl functions are again used to parse the cert to find the public key and store it as a usable object.
-
-Finally the signature can be verified against the hash of the original message using the public key.
+The demonstration runs without interaction from the user, executing the following steps:
+1. First, it gets the SHA384 hash of an arbitrary string using the openssl library
+2. Then this 48-byte hash is sent to the System Controller via the mailbox, by writing to the signature service's device file
+3. The device file is then read back to acquire the signature in 104-byte DER format
+4. Once again Openssl functions are used to convert this raw DER signature into a usable object
+5. To verify the signature, the public key is now retrieved from the device certificate
+6. The certificate is been read in raw form from the certificate device file
+7. Again openssl functions are used to parse the certificate to find the public key and store it as a usable object
+8. Finally, the signature can be verified against the hash of the original message using the public key
