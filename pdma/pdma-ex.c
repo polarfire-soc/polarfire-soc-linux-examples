@@ -495,13 +495,13 @@ static char *pprint_region(uint64_t base, size_t sz)
 
 	for(i = 0; i < NUM_REGIONS; i++) {
 		if ((base >= regions[i].base) &&
-		    ((base + sz) < (regions[i].base + regions[i].sz))) {
+		    ((base + sz) <= (regions[i].base + regions[i].sz))) {
 			snprintf(buf, sizeof(buf), "%s", regions[i].name);
 			return buf;
 		}
 	}
 
-	snprintf(buf, sizeof(buf), "uknown");
+	snprintf(buf, sizeof(buf), "unknown");
 	return buf;
 }
 
@@ -627,7 +627,7 @@ static void check_pdma_error(uint8_t pdma_error_code)
 	else if (pdma_error_code == 7)
 		printf("Last ID\n");
 	else
-		printf("Uknown error\n");
+		printf("Unknown error\n");
 }
 
 uint8_t wait_for_int(struct pdma_t pdmas[], mss_pdma_channel_id_t chan)
