@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static void display_output(char *data, unsigned int byte_length)
 {
@@ -46,7 +47,7 @@ int main()
         case '1':
             if ((fptr = fopen("/dev/mpfs_serial_num", "r")) == NULL)
             {
-                printf("Error! opening file");
+                printf("Error! opening file\n");
                 exit(1);
             }
             fscanf(fptr, "%[^\n]", c);
@@ -56,24 +57,25 @@ int main()
         case '2':
             if ((fptr = fopen("/dev/mpfs_fpga_digest", "r")) == NULL)
             {
-                printf("Error! opening file");
+                printf("Error! opening file\n");
                 exit(1);
             }
             printf("pfsoc fpga digest:\n");
-            while (fread(c, 66, 1, fptr) == 1)
-            {
-                printf("%s", c);
-            }
+            size_t ret;
+            do {
+                ret = fread(c, 1, 66, fptr);
+                printf("%.*s", ret, c);
+            } while (ret == 66);
             if (feof(fptr))
             {
-                printf("%s\n", c);
+                printf("\n");
             }
             fclose(fptr);
             break;
         case '3':
             if ((fptr = fopen("/dev/hwrng", "r")) == NULL)
             {
-                printf("Error! opening file");
+                printf("Error! opening file\n");
                 exit(1);
             }
             for (;/*ever*/;)
@@ -84,26 +86,31 @@ int main()
             fclose(fptr);
             break;
         case '4':
-            if ((fptr = fopen("/dev/mpfs_signature", "w")) == NULL)
+            if (access("/dev/mpfs_signature", F_OK))
             {
-                printf("Error! opening file");
+                printf("Error! file doesnt exist\n");
+                exit(1);
+            }
+            else if ((fptr = fopen("/dev/mpfs_signature", "w")) == NULL)
+            {
+                printf("Error! opening file\n");
                 exit(1);
             }
             fprintf(fptr, "47f05d367b0c32e438fb63e6cf4a5f35c2aa2f90dc7543f8");
             fclose(fptr);
             if ((fptr = fopen("/dev/mpfs_signature", "r")) == NULL)
             {
-                printf("Error! opening file");
+                printf("Error! opening file\n");
                 exit(1);
             }
             fread(c, 195, 1, fptr); //3 for status and a space, 192 chars for the hex signature (96 bytes)
-            printf("status signature:\r\n%sq\r\n", c);
+            printf("status signature:\r\n%.195s\r\n", c);
             fclose(fptr);
             break;
         case 'd':
             if ((fptr = fopen("/dev/mpfs_fpga_digest", "r")) == NULL)
             {
-                printf("Error! opening file");
+                printf("Error! opening file\n");
                 exit(1);
             }
             fseek(fptr, 50, SEEK_SET);
