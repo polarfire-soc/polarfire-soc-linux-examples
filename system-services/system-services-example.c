@@ -103,8 +103,8 @@ int main()
                 printf("Error! opening file\n");
                 exit(1);
             }
-            fread(c, 195, 1, fptr); //3 for status and a space, 192 chars for the hex signature (96 bytes)
-            printf("status signature:\r\n%.195s\r\n", c);
+            fread(c, 207, 1, fptr); //3 for status and a space, 208 chars for the DER format hex signature (104 bytes)
+            printf("status signature:\r\n%.207s\r\n", c);
             fclose(fptr);
             break;
         case 'd':
