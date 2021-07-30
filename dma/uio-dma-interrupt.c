@@ -97,8 +97,7 @@ int main(void)
     volatile uint32_t *ddr_mem, *lsram_mem;
     char uio_device[UIO_DEVICE_PATH_LEN];
     char sysfs_path[SYSFS_PATH_LEN];
-    uint32_t fdma_mmap_size;
-    uint32_t lsram_mmap_size;
+    uint32_t fdma_mmap_size, lsram_mmap_size;
     int index;
 
     printf("locating device for %s\n", uio_id_str_fdma);
