@@ -135,16 +135,17 @@ int main(int argc, char* argvp[])
 
             for(i=0;i<(mmap_size/4);i++) {
                 *(mem_ptr0+i)=i;
+            }
+            for(i=0;i<(mmap_size/4);i++) {
                 val=*(mem_ptr0+i);
-                                if(val !=i){
-                                        printf("\n\n\r ***** LSRAM memory test Failed***** \n\r");
-                                        break;
-                                }
-                                else if(i%100 == 0)
-                                {
-                                        printf(".");
-                                }
-
+                if(val !=i){
+                    printf("\n\n\r ***** LSRAM memory test Failed***** \n\r");
+                    break;
+                }
+                else if(i%100 == 0)
+                {
+                    printf(".");
+                }                
             }
             if(i == (mmap_size/4))
                 printf("\n\n\n**** LSRAM memory test passed successfully *****\n");
