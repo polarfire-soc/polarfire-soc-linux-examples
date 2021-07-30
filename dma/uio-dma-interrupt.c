@@ -23,7 +23,7 @@
 #define UIO_LSRAM_DEVNAME      "fpga_lsram"
 #define UIO_DMA_DEVNAME        "fpga_dma0"
 
-#define MMAP_SIZE              0x10000
+#define DDR_MMAP_SIZE              0x10000
 
 #define FILENAME_LEN           (256)
 
@@ -97,7 +97,8 @@ int main(void)
     volatile uint32_t *ddr_mem, *lsram_mem;
     char uio_device[UIO_DEVICE_PATH_LEN];
     char sysfs_path[SYSFS_PATH_LEN];
-    uint32_t mmap_size;
+    uint32_t fdma_mmap_size;
+    uint32_t lsram_mmap_size;
     int index;
 
     printf("locating device for %s\n", uio_id_str_fdma);
@@ -118,17 +119,17 @@ int main(void)
         printf("opened %s (r,w)\n", uio_device);
     }
     snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, index, "maps/map0/size");
-    mmap_size = get_memory_size(sysfs_path, uio_device);
-    if (mmap_size == 0) {
+    fdma_mmap_size = get_memory_size(sysfs_path, uio_device);
+    if (fdma_mmap_size == 0) {
         fprintf(stderr, "bad memory size for %s\n", uio_device);
         return -1;
     }
-    fdma_dev = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uioFd_0, 0);
+    fdma_dev = mmap(NULL, fdma_mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uioFd_0, 0);
     if (fdma_dev == MAP_FAILED) {
         fprintf(stderr, "cannot mmap %s: %s\n", uio_device, strerror(errno));
         return -1;
     } else {
-        printf("mapped 0x%x bytes for %s\n", mmap_size, uio_device);
+        printf("mapped 0x%x bytes for %s\n", fdma_mmap_size, uio_device);
     }
 
     printf("locating device for %s\n", uio_id_str_lsram);
@@ -149,23 +150,23 @@ int main(void)
         printf("opened %s (r,w)\n", uio_device);
     }
     snprintf(sysfs_path, SYSFS_PATH_LEN, sysfs_template, index, "maps/map0/size");
-    mmap_size = get_memory_size(sysfs_path, uio_device);
-    if (mmap_size == 0) {
+    lsram_mmap_size = get_memory_size(sysfs_path, uio_device);
+    if (lsram_mmap_size == 0) {
         fprintf(stderr, "bad memory size for %s\n", uio_device);
         return -1;
     }
-    lsram_mem = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uioFd_1, 0);
+    lsram_mem = mmap(NULL, lsram_mmap_size, PROT_READ|PROT_WRITE, MAP_SHARED, uioFd_1, 0);
     if (lsram_mem == MAP_FAILED) {
         fprintf(stderr, "cannot mmap %s: %s\n", uio_device, strerror(errno));
         return -1;
     } else {
-        printf("mapped 0x%x bytes for %s\n", mmap_size, uio_device);
+        printf("mapped 0x%x bytes for %s\n", lsram_mmap_size, uio_device);
     }
 
     /* Map in uncached DDR */
     uioFd_2 = open("/dev/mem", O_RDWR);
 
-    ddr_mem = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE,
+    ddr_mem = mmap(NULL, DDR_MMAP_SIZE, PROT_READ | PROT_WRITE,
             MAP_SHARED, uioFd_2, UNCACHED_DDR_BASE);
     if (ddr_mem == MAP_FAILED) {
         fprintf(stderr, "Cannot mmap: %s\n", strerror(errno));
@@ -185,10 +186,10 @@ int main(void)
             printf("\nReading data starting from address %x \n", LSRAM_BASE);
             printf("\nComparing data \n");
 
-            for (i = 0; i < (mmap_size / 4); i++) {
+            for (i = 0; i < (lsram_mmap_size / 4); i++) {
                 *(lsram_mem + i) = i;
             }
-            for (i = 0; i < (mmap_size / 4); i++) {
+            for (i = 0; i < (lsram_mmap_size / 4); i++) {
                 rval = *(lsram_mem + i);
                  if(rval != i) {
                     printf("\n\n\r ***** LSRAM memory test Failed***** \n\r");
@@ -199,7 +200,7 @@ int main(void)
                 }
             }
 
-            if (i == (mmap_size / 4))
+            if (i == (lsram_mmap_size / 4))
                 printf("\n\n\n**** LSRAM memory test Passed with incremental pattern *****\n\n");
         }
         else if (cmd == '2') {
@@ -272,15 +273,15 @@ int main(void)
         printf("Enter either 1, 2, and 3\n");
     }
     }
-    ret = munmap((void*)lsram_mem, MMAP_SIZE);
+    ret = munmap((void*)lsram_mem, lsram_mmap_size);
     if(ret < 0) {
         printf("unable to unmap the lsram_mem\n");
     }
-    ret = munmap((void*)ddr_mem, MMAP_SIZE);
+    ret = munmap((void*)ddr_mem, DDR_MMAP_SIZE);
     if(ret < 0) {
         printf("unable to unmap the ddr_mem\n");
     }
-    ret = munmap((void*)fdma_dev, FDMA_MAP_SIZE);
+    ret = munmap((void*)fdma_dev, fdma_mmap_size);
     if(ret < 0) {
         printf("unable to unmap the fdma mem\n");
     }
