@@ -185,8 +185,10 @@ int main(void)
             printf("\nReading data starting from address %x \n", LSRAM_BASE);
             printf("\nComparing data \n");
 
-            for (i = 0; i < (MMAP_SIZE / 4); i++) {
+            for (i = 0; i < (mmap_size / 4); i++) {
                 *(lsram_mem + i) = i;
+            }
+            for (i = 0; i < (mmap_size / 4); i++) {
                 rval = *(lsram_mem + i);
                  if(rval != i) {
                     printf("\n\n\r ***** LSRAM memory test Failed***** \n\r");
@@ -197,7 +199,7 @@ int main(void)
                 }
             }
 
-            if (i == (MMAP_SIZE / 4))
+            if (i == (mmap_size / 4))
                 printf("\n\n\n**** LSRAM memory test Passed with incremental pattern *****\n\n");
         }
         else if (cmd == '2') {
