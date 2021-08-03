@@ -21,7 +21,7 @@ The following table lists the addresses and sizes included in device tree nodes 
 
 | Component | Start Addr | Size |
 | --- | --- | --- |
-| LSRAM | 0x61000000 | 64 K |
+| LSRAM | 0x61000000 | 4 K |
 | LPDDR4 | 0xC0000000 | 64 K |
 | DMA Controller | 0x60020000 | 4 K |
 
