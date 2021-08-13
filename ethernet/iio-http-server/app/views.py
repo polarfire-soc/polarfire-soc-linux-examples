@@ -88,7 +88,7 @@ def makemsg(status):
 def makereadings(current, currenthistory, voltage, voltagehistory):
     readings = [
         {
-            "channel": "VDDA",
+            "channel": "VDD",
             "index": 0,
             "voltage": voltage[0],
             "current": current[0],
@@ -96,7 +96,7 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "current-history": currenthistory[0]
         },
         {
-            "channel": "VDD25",
+            "channel": "VDDA25",
             "index": 1,
             "voltage": voltage[1],
             "current": current[1],
@@ -104,7 +104,7 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "current-history": currenthistory[1]
         },
         {
-            "channel": "VDDA25",
+            "channel": "VDD25",
             "index": 2,
             "voltage": voltage[2],
             "current": current[2],
@@ -112,7 +112,7 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "current-history": currenthistory[2]
         },
         {
-            "channel": "VDD",
+            "channel": "VDDA",
             "index": 3,
             "voltage": voltage[3],
             "current": current[3],
