@@ -6,6 +6,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <openssl/err.h>
 #include <openssl/ecdsa.h>
@@ -13,12 +15,19 @@
 
 #define BUFFSIZE 4096
 #define ALGO "SHA384"
-#define SIGN_SIZE 104
+#define SIGN_COMMAND 26u
+#define SIGN_MSG_SIZE 48u
+#define SIGN_OFFSET 0u
+#define SIGN_SIZE 104u
 #define SIGN_READ_BYTES (3 + 2 * SIGN_SIZE) /* 3 for status and a space, 192 chars for the hex signature (96 bytes) */
-#define SIGN_DEVICE "/dev/mpfs_signature"
-#define CERT_SIZE 1024
+#define SIGN_DEVICE "/dev/mpfs_generic_service"
+
+#define CERT_COMMAND 0x3U
+#define CERT_MSG_SIZE 0u
+#define CERT_OFFSET 0u
+#define CERT_SIZE 1024u
 #define CERT_READ_BYTES (3 + 2 * CERT_SIZE) /* 3 for status and a space, 2048 chars for the hex signature (96 bytes) */
-#define CERT_DEVICE "/dev/mpfs_device_cert_num"
+#define CERT_DEVICE "/dev/mpfs_generic_service"
 
 void get_hash(const unsigned char *msg, const size_t msg_len, unsigned char *hash, size_t *hash_len)
 {
@@ -43,19 +52,32 @@ void get_signature(const unsigned char *hash, const size_t hash_len, const size_
     unsigned char *buff = inbuff + 3; /* + 3 to skip response code */
     int inc;
     FILE *fptr;
-
-    if ((fptr = fopen(SIGN_DEVICE, "w")) == NULL)
+    if (access(SIGN_DEVICE, F_OK))
+    {
+        printf("Error! file doesnt exist\n");
+        exit(1);
+    }
+    else if ((fptr = fopen(SIGN_DEVICE, "w")) == NULL)
     {
         printf("Error! opening file");
         exit(1);
     }
-    /* write 38 byte hash to the device file */
+    unsigned int command = SIGN_COMMAND, msg_size = SIGN_MSG_SIZE;
+    unsigned int resp_size = SIGN_SIZE, send_offset = SIGN_OFFSET;
+    unsigned int response_offset = SIGN_MSG_SIZE + SIGN_OFFSET;
+    fprintf(fptr, "%c%c%c%c%c%c%c%c%c", 
+            (char)command,
+            (char)msg_size, (char)(msg_size >> 8),
+            (char)resp_size, (char)(resp_size >> 8),
+            (char)send_offset, (char)(send_offset >> 8),
+            (char)response_offset, (char)(response_offset >> 8)
+            );
     for (inc = 0; inc < hash_len; ++inc)
         fprintf(fptr, "%c", hash[inc]);
     fclose(fptr);
     if ((fptr = fopen(SIGN_DEVICE, "r")) == NULL)
     {
-        printf("Error! opening signature device file ile");
+        printf("Error! opening signature device file\n");
         exit(1);
     }
     /* read back 104 byte DER format signature */
@@ -75,6 +97,28 @@ void get_cert(const size_t outbufflen, unsigned char *outbuff)
     unsigned char inbuff[BUFFSIZE];
     unsigned char *buff = inbuff + 3; /* + 3 to skip response code */
     FILE *fptr;
+
+    if (access(CERT_DEVICE, F_OK))
+    {
+        printf("Error! file doesnt exist\n");
+        exit(1);
+    }
+    else if ((fptr = fopen(CERT_DEVICE, "w")) == NULL)
+    {
+        printf("Error! opening file");
+        exit(1);
+    }
+
+    unsigned int command = CERT_COMMAND, msg_size = CERT_MSG_SIZE;
+    unsigned int resp_size = CERT_SIZE, send_offset = CERT_OFFSET;
+    unsigned int response_offset = CERT_OFFSET;
+    fprintf(fptr, "%c%c%c%c%c%c%c%c%c",
+            command,
+            (char)msg_size, (char)(msg_size >> 8),
+            (char)resp_size, (char)(resp_size >> 8),
+            (char)send_offset, (char)(send_offset >> 8),
+            (char)response_offset, (char)(response_offset >> 8));
+    fclose(fptr);
 
     if ((fptr = fopen(CERT_DEVICE, "r")) == NULL)
     {
