@@ -19,7 +19,7 @@ Once built, it can be run:
 ```
 A successful execution should look like:
 ```
-locating device for mss_can0
+locating device for uiocan0
 located /dev/uio1
 opened /dev/uio1 (r,w)
 mapped 0x1000 bytes for /dev/uio1
