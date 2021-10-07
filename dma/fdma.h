@@ -30,7 +30,7 @@ typedef struct _fdmaregs
     volatile  uint32_t exec_destination; /*0x6C  Destination current address. */
 } fdma_t;
 
-#define FDMA_TR_SIZE     0x10000U
+#define FDMA_TR_SIZE     0x1000U
 #define FDMA_CONF_VAL    0x0000F005U
 #define FDMA_START       0x00000001U
 #define FDMA_IRQ_MASK    0x00000001U
