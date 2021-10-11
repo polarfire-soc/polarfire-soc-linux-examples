@@ -1,6 +1,11 @@
 CC ?= gcc
-led-blinky: led-blinky.c
-	$(CC) -o led-blinky  led-blinky.c 
 
+all: gpio-test gpio-event
+
+gpio-test:
+	$(CC) -lgpiod -o gpiod-test  gpiod-test.c
+	
+gpio-event:
+	$(CC) -o gpio-event  gpio-event-test.c
 clean:
-	rm -rf led-blinky .*.swp .*.un* *~
+	rm -rf gpiod-test gpio-event .*.swp .*.un* *~
