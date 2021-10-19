@@ -269,8 +269,8 @@ int main(int argc, char **argv, char **envp)
 		if (fdset[0].revents & POLLPRI) {
 			/* clear interrupt */
 			lseek(fdset[0].fd, 0, SEEK_SET);
-			len = read(fdset[0].fd, buf, MAX_BUF);
-			printf("\npoll() GPIO %d interrupt occurred (len %d)\n", gpio, len);
+			read(fdset[0].fd, buf, MAX_BUF);
+			printf("\npoll() GPIO %d interrupt occurred \n", gpio);
 		}
 
 	}

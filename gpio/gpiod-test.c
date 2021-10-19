@@ -23,12 +23,6 @@
 #define led_GPIO19 19
 #define sw2_GPIO30 30
 
-#ifndef	CONSUMER
-#define	CONSUMER	"Consumer"
-#endif
-
-
-
 /* libgpiod public API */
 /* Reference: https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/about/ */
 /**
@@ -67,37 +61,13 @@
  */
 //int gpiod_line_get_value(struct gpiod_line *line) GPIOD_API;
 
-/**
- * @brief Wait for an event on a single line.
- * @param line GPIO line object.
- * @param timeout Wait time limit.
- * @return 0 if wait timed out, -1 if an error occurred, 1 if an event
- *         occurred.
- */
-//int gpiod_line_event_wait(struct gpiod_line *line,
-//			  const struct timespec *timeout) GPIOD_API;
-
-/**
- * @brief Read next pending event from the GPIO line.
- * @param line GPIO line object.
- * @param event Buffer to which the event data will be copied.
- * @return 0 if the event was read correctly, -1 on error.
- * @note This function will block if no event was queued for this line.
- */
-//int gpiod_line_event_read(struct gpiod_line *line,
-//			  struct gpiod_line_event *event) GPIOD_API;
-			  
-			  
+	  
 
 int main()
 {
 	char runcmd;
 	char *chipname = "/dev/gpiochip0";
-	unsigned int line_num = 24;	// GPIO Pin #24
-	int val;
 	struct gpiod_chip *chip;
-	struct gpiod_line *line;
-	int i, ret;
 	int counter = 0;
 
 	//chip = gpiod_chip_open_by_name(chipname);
