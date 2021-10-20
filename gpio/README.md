@@ -24,7 +24,7 @@ root@icicle-kit-es:~# cd /opt/microchip/gpio
 Type the `./gpiod-test` command and Press Enter to execute the application.
 
 ```
-root@icicle-kit-es:/opt/microchip/gpio# ./led-blinky                        
+root@icicle-kit-es:/opt/microchip/gpio# ./gpiod-test
         # Choose one of  the following options:
         Enter 1 to blink LEDs for 10 seconds, LED's 1,2,3,4
         Enter 2 to verify Read SW#2 value, connected to GPIO30"
@@ -34,7 +34,7 @@ root@icicle-kit-es:/opt/microchip/gpio# ./led-blinky
 Type the `./gpio-int <gpio-pin>` command and Press Enter to execute the application.
 
 ```
-root@icicle-kit-es:/opt/microchip/gpio# ./gpio-int <gpio-pin>                  
+root@icicle-kit-es:/opt/microchip/gpio# ./gpio-int <gpio-pin>
         # As GPIO events are captured they are displayed, application will exit after 10 iterations.
         .
         .
@@ -44,5 +44,4 @@ root@icicle-kit-es:/opt/microchip/gpio# ./gpio-int <gpio-pin>
         .
         .
         .
-
 ```
