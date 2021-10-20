@@ -35,9 +35,14 @@ Type the `./gpio-int <gpio-pin>` command and Press Enter to execute the applicat
 
 ```
 root@icicle-kit-es:/opt/microchip/gpio# ./gpio-int <gpio-pin>                  
-        # As GPIO events are captured they are displayed
-        ...
-        poll() GPIO <gpio-pin> interrupt occurred 
+        # As GPIO events are captured they are displayed, application will exit after 10 iterations.
+        .
+        .
+        .
+        .
+        poll() GPIO <gpio-pin> interrupt occurred
+        .
+        .
+        .
 
-        Press 'Ctrl+c' to Exit
 ```

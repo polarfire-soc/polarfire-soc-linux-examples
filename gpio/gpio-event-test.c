@@ -226,6 +226,7 @@ int main(int argc, char **argv, char **envp)
 	unsigned int gpio;
 	int len;
 	int val;
+	char runcmd;
 
 	if (argc < 2) {
 		printf("Usage: gpio-int <gpio-pin>\n\n");
@@ -246,8 +247,9 @@ int main(int argc, char **argv, char **envp)
 	/* clear last interrupt */
 	lseek(gpio_fd, 0, SEEK_SET);
 	len = read(gpio_fd, buf, MAX_BUF);
-
-	while (1) {
+	int counter = 10;
+	while (counter--) {
+ 
 		memset((void*)fdset, 0, sizeof(fdset));
 
 		fdset[0].fd = gpio_fd;
@@ -261,7 +263,7 @@ int main(int argc, char **argv, char **envp)
 		}
 
 		if (rc == 0) {
-			printf(".");
+			printf(".\n");
 			fflush(stdout);
 			continue;
 		}
