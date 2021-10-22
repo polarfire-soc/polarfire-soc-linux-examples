@@ -229,7 +229,7 @@ int main(int argc, char **argv, char **envp)
 	char runcmd;
 
 	if (argc < 2) {
-		printf("Usage: gpio-int <gpio-pin>\n\n");
+		printf("Usage: gpio-event <gpio-pin>\n\n");
 		printf("Waits for a change in the GPIO pin voltage level or input on stdin\n");
 		exit(-1);
 	}

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 /*
- *	Simple GPIO example -- blink icicle kit LEDs
+ *	GPIOD example -- blink PolarFire SoC Icicle kit LEDs and read SW2 switch state
  *
  *	Copyright (c) 2021 Microchip Inc.
  *
@@ -81,7 +81,7 @@ int main()
 	while(1){
 	    printf("\n\t# Choose one of  the following options:");
 	    printf("\n\tEnter '1' to blink LEDs for 10 seconds (GPIO16)1, (GPIO17)2, (GPIO18)3 and (GPIO19)4");
-	    printf("\n\tEnter '2' to verify Read SW#2 connected to GPIO30");
+	    printf("\n\tEnter '2' to read the state of SW2 connected to GPIO30");
 	    printf("\n\tEnter 'any key' to exit: ");
 		
 		scanf("%c%*c",&runcmd);
@@ -123,7 +123,7 @@ int main()
 			
 			counter = 10;
 			int line_value = 0;
-			printf("\n Check LEDs are blinking, every 2 seconds \n");
+			printf("\n Check that LEDs are blinking, every 2 seconds \n");
 			while(counter--){    
 			    /* Set */
 			    line_value = 1;
@@ -157,18 +157,18 @@ int main()
 			
 			int value = -1;
 			int previous_value = -1;
-			printf("\n Loop for 20 seconds reading SW2 input, connected GPIO30 \n");
+			printf("\n Loop for 20 seconds reading the state of SW2, connected as an input to GPIO30 \n");
 			counter = 20;
 			while(counter--) {
 			
 			    sleep(1); 
 			    value = gpiod_line_get_value(sw2_30);
 			    if(value == -1) {
-					printf("\n\t Error reading GPIO Value: %d \n", sw2_GPIO30);
+					printf("\n\t Error reading GPIO value: GPIO# %d \n", sw2_GPIO30);
 				}
 				else {
 					if(value != previous_value)
-						printf("\n\t SW#2 Switch Value is now: %d \n", value);
+						printf("\n\t SW2 switch Value is now: %d \n", value);
 					previous_value = value;
 				}			
 			}
