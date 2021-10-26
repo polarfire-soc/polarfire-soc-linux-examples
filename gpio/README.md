@@ -9,7 +9,7 @@ For more information on which GPIO's are used in the Libero design, please refer
 ### Description:
 
 The User LEDs (LED 1, 2, 3 and 4) are blinked and SW#2 value is displayed by running a Linux application.
-On the Icicle-Kit reference SW#2 / SW#3 are connnected to GPIO#30/31 whihc can be used to verify GPIO events.
+On the Icicle-Kit reference SW2 / SW3 are connnected to GPIO#30/31 which can be used to verify GPIO events.
 
 ### Running the Application:
 
