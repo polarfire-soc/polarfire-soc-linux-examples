@@ -1,6 +1,12 @@
+# build an executable named gpiod-test and gpio-event
 CC ?= gcc
-led-blinky: led-blinky.c
-	$(CC) -o led-blinky  led-blinky.c 
 
+gpiod-test: gpiod-test.c
+	$(CC) -lgpiod -o gpiod-test gpiod-test.c
+
+gpio-event: gpio-event-test.c
+	$(CC) -o gpio-event  gpio-event-test.c
+
+all:  gpiod-test gpio-event
 clean:
-	rm -rf led-blinky .*.swp .*.un* *~
+	rm -rf gpiod-test gpio-event .*.swp .*.un* *~
