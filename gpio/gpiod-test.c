@@ -80,7 +80,7 @@ int main()
 
 	while(1){
 	    printf("\n\t# Choose one of  the following options:");
-	    printf("\n\tEnter '1' to blink LEDs for 10 seconds (GPIO16)1, (GPIO17)2, (GPIO18)3 and (GPIO19)4");
+	    printf("\n\tEnter '1' to blink LEDs for 20 seconds (GPIO16)1, (GPIO17)2, (GPIO18)3 and (GPIO19)4");
 	    printf("\n\tEnter '2' to read the state of SW2 connected to GPIO30");
 	    printf("\n\tEnter 'any key' to exit: ");
 		
@@ -121,7 +121,7 @@ int main()
 			gpiod_line_request_output(led19, "gpio-led19", GPIOD_LINE_ACTIVE_STATE_HIGH);
 		
 			
-			counter = 10;
+			counter = 5;
 			int line_value = 0;
 			printf("\n Check that LEDs are blinking, every 2 seconds \n");
 			while(counter--){    
