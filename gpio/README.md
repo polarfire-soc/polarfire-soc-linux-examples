@@ -26,7 +26,7 @@ Type the `./gpiod-test` command and Press Enter to execute the application.
 ```
 root@icicle-kit-es:/opt/microchip/gpio# ./gpiod-test
         # Choose one of  the following options:
-        Enter 1 to blink LEDs for 10 seconds, LED's 1,2,3,4
+        Enter 1 to blink LEDs for 20 seconds, LED's 1,2,3,4
         Enter 2 to verify Read SW2 value, connected to GPIO30"
         Press any key to exit
 ```
