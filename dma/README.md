@@ -48,31 +48,31 @@ To run the application, follow these steps:
 
 ```
 root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for uio_lpddr4
+locating device for fpga_dma0
+located /dev/uio10
+opened /dev/uio10 (r,w)
+locating device for fpga_lsram
 located /dev/uio0
 opened /dev/uio0 (r,w)
-locating device for mss_dma0
-located /dev/uio2
-opened /dev/uio2 (r,w)
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
-         Enter 2 to perform DMA transfer from LSRAM to uncached LPDDR4 region
+         Enter 2 to write data from LSRAM to LPDD4 via DMA access
          Enter 3 to Exit  
 ```
 
 2. Enter 1 to perform memory test on LSRAM.
 
-   After successful completion of memory test on LSRAM, "LSRAM memory test passed successfully" message is displayed on console.
+   After successful completion of memory test on LSRAM, "LSRAM memory test passed with incremental pattern" message is displayed on console.
 
 ```
 root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for uio_lpddr4
+locating device for fpga_dma0
+located /dev/uio10
+opened /dev/uio10 (r,w)
+locating device for fpga_lsram
 located /dev/uio0
 opened /dev/uio0 (r,w)
-locating device for mss_dma0
-located /dev/uio2
-opened /dev/uio2 (r,w)
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
@@ -88,12 +88,12 @@ Comparing data
 ..............................................................................
 
 
-**** LSRAM memory test passed successfully *****
+**** LSRAM memory test passed with incremental pattern *****
 
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
-         Enter 2 to transfer data from LSRAM to LPDD4 via DMA access
+         Enter 2 to write data from LSRAM to LPDD4 via DMA acces
          Enter 3 to Exit
 ```
 
@@ -101,12 +101,12 @@ Comparing data
 
 ```
 root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for uio_lpddr4
+locating device for fpga_dma0
+located /dev/uio10
+opened /dev/uio10 (r,w)
+locating device for fpga_lsram
 located /dev/uio0
 opened /dev/uio0 (r,w)
-locating device for mss_dma0
-located /dev/uio2
-opened /dev/uio2 (r,w)
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
