@@ -37,18 +37,18 @@ The six regions on PolarFire SoC are summarised here.
 |DDR-NC-WCB-HI | 0x1800000000 |  16 GB	    | 64-bit address, non-cached, write-combine buffer |
 
 ### DDR on PolarFire SoC on Icicle-Kit
-By default, PolarFire SoC's Icicle-Kit boards come with 2 GB of DDR on-board, and with 1.75 GB (1 GB + 768 MB) of that 2 GB of DDR allocated to cached memory and 256 MB of DDR allocated to non-cached memory (with physical memory behind the non-cacheable memory regions addressable at two addresses, one address via the write combine buffer and one address without the write-combine buffer.
+By default, PolarFire SoC's Icicle-Kit boards come with 2 GB of DDR on-board, and with 1.875 GB (32 MB + 1888 MB) of that 2 GB of DDR allocated to cached memory and 128 MB of DDR allocated to non-cached memory (with physical memory behind the non-cacheable memory regions addressable at two addresses, one address via the write combine buffer and one address without the write-combine buffer.
 
 So, by default, on Icicle-Kit, the system memory map defaults to:
 
 |Region Name   | Region Base  | Region Size | Region Properties				       |
 |--------------|--------------|-------------|------------------                                |
-|DDRC-LO       | 0x80000000   | 768 MB	    | 32-bit address, cached                           |
-|DDR-NC-LO     | 0xC0000000   | 256 MB [1]  | 32-bit address, non-cached		       |
-|DDR-NC-WCB-LO | 0xD0000000   | 256 MB [1]  | 32-bit address, non-cached, write-combine buffer |
-|DDRC-HI       | 0x1000000000 |   1 GB	    | 64-bit address, cached			       |
+|DDRC-LO       | 0x80000000   | 32 MB	    | 32-bit address, cached                           |
+|DDR-NC-LO     | 0xC0000000   | 128 MB [1]  | 32-bit address, non-cached		       |
+|DDR-NC-WCB-LO | 0xD0000000   | 128 MB [1]  | 32-bit address, non-cached, write-combine buffer |
+|DDRC-HI       | 0x1000000000 | 1888 MB	    | 64-bit address, cached			       |
 
-[1] NB: This 256MB is a shared view of a single physical memory area.
+[1] NB: This 128MB is a shared view of a single physical memory area.
 
 By default, the Linux device tree further partitions the memory map by:
 
@@ -64,27 +64,23 @@ Or a developer may allocate more memory to a contiguous cached buffer provided t
 Much more significant memory map changes can be made. Please refer to the Libero documentation for details.
 
 ### Default DDR Allocation on Icicle-Kit
-The default device tree (dts) file for PolarFire SoC on Icicle-Kit uses two mappings as shown here; the first mapping associates 736 MB of DDR memory, cached, at the LO interface at 0x80000000 and the second mapping associates another 1 GB or DDR memory, cached, at the HI address.
+The default device tree (dts) file for PolarFire SoC on Icicle-Kit uses the mapping shown below; it associates 1888 MB of DDR memory, cached, and with 64-bit addressing from the "DDRC-HI" region.
 
 ```
-DDRC-LO: memory@80000000 {
+ddrc_cache: memory@1000000000 {
 	device_type = "memory";
-	reg = "0x0 0x80000000 0x0 0x2e000000>;
-	...
-};
-DDRC-HI: memory@1040000000 {
-	device_type = "memory";
-	reg = "0x10 0x40000000 0x0 0x40000000>;
-	...
+	reg = <0x10 0x0 0x0 0x76000000>;
+	clocks = <&clkcfg CLK_DDRC>;
+	status = "okay";
 };
 ```
 
-This leaves 288 MB of memory for other purposes.
+This leaves 160 MB of memory for other purposes.
 
 
 ### Using 'Reserved-Memory' to create pools
 
-By default with Icicle-Kit, the Linux device tree creates 3 buffers using the 288 MB of memory reserved in the previous steps:
+By default with Icicle-Kit, the Linux device tree creates 3 buffers using the 160 MB of memory reserved in the previous steps:
  
   * one in the cached DDR address space
   * one in the non-cached DDR address space
@@ -106,7 +102,7 @@ reserved-memory {
 	#address-cells = <2>;
 	fabricbuf0: fabricbuf@0 {
 		compatible = "shared-dma-pool";
-		reg =  <0x0 0xae000000 0x0 0x02000000>; /* Top 32 MB @ 80000000 */
+		reg =  <0x0 0x80000000 0x0 0x02000000>; /* Top 32 MB @ 80000000 */
 		label = "fabricbuf-ddrc";
 	};
 	fabricbuf1: fabricbuf@1 {
@@ -116,7 +112,7 @@ reserved-memory {
 	};
 	fabricbuf2: fabricbuf@2 {
 		compatible = "shared-dma-pool";
-		reg = <0x0 0xd8000000 0x0 0x08000000>; /* Top 128 MB @ d0000000 (shared with c0000000) */
+		reg = <0x0 0xd0000000 0x0 0x08000000>; /* Top 128 MB @ d0000000 (shared with c0000000) */
 		label = "fabricbuf-ddr-nc-wcb";
 	};
 };
@@ -134,21 +130,21 @@ If adjusting this example:
 
 As Linux boots, it reports these three DMA memory pools.
 ```
-[..] Reserved memory: created DMA memory pool at 0x00000000ae000000, size 32 MiB
+[..] Reserved memory: created DMA memory pool at 0x0000000080000000, size 32 MiB
 [..] OF: reserved mem: initialized node fabricbuf@0, compatible id shared-dma-pool
 [..] Reserved memory: created DMA memory pool at 0x00000000c0000000, size 128 MiB
 [..] OF: reserved mem: initialized node fabricbuf@1, compatible id shared-dma-pool
-[..] Reserved memory: created DMA memory pool at 0x00000000d8000000, size 128 MiB
+[..] Reserved memory: created DMA memory pool at 0x00000000d0000000, size 128 MiB
 [..] OF: reserved mem: initialized node fabricbuf@2, compatible id shared-dma-pool
 ```
 
 Linux also notes the Zone ranges it will use for general memory allocation.
 ```
 [..] Zone ranges:
-[..]   DMA32    [mem 0x0000000080200000-0x00000000ffffffff]
-[..]   Normal   [mem 0x0000000100000000-0x000000103fffffff]
+[..]   DMA32    empty
+[..]   Normal   [mem 0x0000001000200000-0x0000001075ffffff]
 ```
-with the `Normal` region ending just below `0x1040000000`. Linux reserves the space from 0x80000000 to 0x80200000 for its own code and data.
+with the `Normal` region ending just below `0x1076000000`. Linux reserves the space from 0x1000000000 to 0x1000200000 for its own code and data.
 
 ### Accessing `reserved-memory` from user space
 
@@ -212,7 +208,7 @@ As Linux boots on PolarFire SoC, the Linux boot console will contain details of 
 [    1.408414] u-dma-buf udmabuf-ddrc0: driver version = 3.2.4
 [    1.414011] u-dma-buf udmabuf-ddrc0: major number   = 248
 [    1.419497] u-dma-buf udmabuf-ddrc0: minor number   = 0
-[    1.424731] u-dma-buf udmabuf-ddrc0: phys address   = 0x00000000ae000000
+[    1.424731] u-dma-buf udmabuf-ddrc0: phys address   = 0x0000000080000000
 [    1.431490] u-dma-buf udmabuf-ddrc0: buffer size    = 33554432
 [    1.437475] u-dma-buf soc:udmabuf@0: driver installed.
 ```
@@ -232,7 +228,7 @@ As Linux boots on PolarFire SoC, the Linux boot console will contain details of 
 [    1.907039] u-dma-buf udmabuf-ddrc-nc-wcb0: driver version = 3.2.4
 [    1.913237] u-dma-buf udmabuf-ddrc-nc-wcb0: major number   = 248
 [    1.919344] u-dma-buf udmabuf-ddrc-nc-wcb0: minor number   = 2
-[    1.925231] u-dma-buf udmabuf-ddrc-nc-wcb0: phys address   = 0x00000000d8000000
+[    1.925231] u-dma-buf udmabuf-ddrc-nc-wcb0: phys address   = 0x00000000d0000000
 [    1.932553] u-dma-buf udmabuf-ddrc-nc-wcb0: buffer size    = 13417728
 [    1.939054] u-dma-buf soc:udmabuf@2: driver installed.
 
@@ -304,7 +300,7 @@ To see a `phys_addr` value, `cat` the relevant file, in a similar manner to this
 
 ```
 # cat /sys/class/u-dma-buf/udmabuf-ddrc0/phys_addr
-0x00000000ae000000
+0x0000000080000000
 ```
 
 And, to see a `size` value for a particular device, `cat` the relevant file, in a
@@ -555,35 +551,26 @@ CONFIG_UIO_MICROCHIP_PDMA=y
 ```
 This enables the Microchip UIO PDMA driver.
 
-##### Configuring DTS File
-In the device tree (dts) file, this example changes the PDMA stanza from:
-```
-pdma: pdma@3000000 {
-    compatible = "sifive,fu540-c000-pdma";
-    reg = <0x0 0x3000000 0x0 0x8000>;
-    interrupt-parent = <&L1>;
-    interrupts = <5 6 7 8 9 10 11 12>;
-    #dma-cells = <1>;
-};
-which binds the SiFive PDMA kernel driver to the PDMA hardware
+The Icicle Kit Device Tree contains a PDMA stanza which binds the Microchip UIO PDMA driver to the 
+PDMA hardware.
 
 ```
-to
-```
 pdma: pdma@3000000 {
-    compatible = "microchip,mpfs-pdma-uio";
-    reg = <0x0 0x3000000 0x0 0x8000>;
-    interrupt-parent = <&L1>;
-    interrupts = <5 6 7 8 9 10 11 12>;
-    #dma-cells = <1>;
+	compatible = "microchip,mpfs-pdma-uio";
+	reg = <0x0 0x3000000 0x0 0x8000>;
+	interrupt-parent = <&plic>;
+	interrupts = <PLIC_INT_DMA_CH0_DONE PLIC_INT_DMA_CH0_ERR
+		PLIC_INT_DMA_CH1_DONE PLIC_INT_DMA_CH1_ERR
+		PLIC_INT_DMA_CH2_DONE PLIC_INT_DMA_CH2_ERR
+		PLIC_INT_DMA_CH3_DONE PLIC_INT_DMA_CH3_ERR>;
+	#dma-cells = <1>;
 };
 ```
-which binds the Microchip UIO PDMA driver to the PDMA hardware instead.
 
-If the PDMA UIO driver is correctly configured in the device tree (dts) file, then Linux will display messages like the following when booting:
+Linux will display messages like the following when booting:
 ```
-[    2.012814] pdma-uio 3000000.dma: Running Probe
-[    2.020249] pdma-uio 3000000.dma: Registered 8 devices
+[    2.012814] pdma-uio 3000000.pdma: Running Probe
+[    2.020249] pdma-uio 3000000.pdma: Registered 8 devices
 ```
 
 ### User Space PDMA
@@ -623,17 +610,17 @@ This listing shows that each of the eleven devices on the example system have a 
 ```
 # ls -la /sys/class/uio/uio*
 
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio0 -> .. soc/61000000.lpddr4 ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio1 -> .. soc/2010c000.can ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio2 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio3 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio4 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio5 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio6 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio7 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio8 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio9 -> .. soc/3000000.pdma ..
-lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio10 -> .. soc/60020000.dma ..
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio0 -> ../../devices/platform/61000000.uio/uio/uio0
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio1 -> ../../devices/platform/soc/2010c000.can/uio/uio1
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio2 -> ../../devices/platform/soc/3000000.pdma/uio/uio2
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio3 -> ../../devices/platform/soc/3000000.pdma/uio/uio3
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio4 -> ../../devices/platform/soc/3000000.pdma/uio/uio4
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio5 -> ../../devices/platform/soc/3000000.pdma/uio/uio5
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio6 -> ../../devices/platform/soc/3000000.pdma/uio/uio6
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio7 -> ../../devices/platform/soc/3000000.pdma/uio/uio7
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio8 -> ../../devices/platform/soc/3000000.pdma/uio/uio8
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio9 -> ../../devices/platform/soc/3000000.pdma/uio/uio9
+lrwxrwxrwx 1 root root 0 Aug  1 02:24 /sys/class/uio/uio10 -> ../../devices/platform/60020000.uio/uio/uio10
 ```
 
 This listing illustrates the contents of the directory of one of these devices.
@@ -654,14 +641,14 @@ lrwxrwxrwx 1 root root    0 Aug  1 02:24 subsystem
 ```
 
 This example browses the UIO device names.
-For example, `uio0` is a driver for a `lpddr4` device and
+For example, `uio0` is a driver for a `fpga_lsram` device and
 `uio1` is a driver for a `can0` device.
 ```
 # cat /sys/class/uio/uio0/name
-uio_lpddr4
+fpga_lsram
 
 # cat /sys/class/uio/uio1/name
-mss_can0
+uiocan0
 ```
 
 In this example, `uio2` is one of the names (`pdma0`) that this example is searching for.
