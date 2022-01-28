@@ -28,7 +28,7 @@ To run the application, follow these steps:
 
 ```
 root@icicle-kit-es:/opt/microchip/fpga-fabric-interfaces/lsram# ./uio-lsram-read-write
-locating device for uio_lpddr4
+locating device for fpga_lsram
 located /dev/uio0
 opened /dev/uio0 (r,w)
 
