@@ -8,9 +8,6 @@ chmod a+r "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934"
 echo "clearing data"
 rm "/var/lib/collectd/$HOSTNAME/sensors-microchip,pac1934/"*
 
-echo "stopping collectd"
-systemctl stop collectd
-
 echo "starting collectd for iio"
 systemctl restart collectdiio
 
@@ -21,6 +18,4 @@ flask run --host="0.0.0.0" --port=80
 echo "stopping collectd for iio"
 systemctl stop collectdiio
 
-echo "restarting collectd"
-systemctl restart collectd
 
