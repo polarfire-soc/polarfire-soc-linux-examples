@@ -22,14 +22,13 @@
 #define DIGEST_RESP_SIZE 576u
 #define DIGEST_OFFSET 0u
 #define DIGEST_DEVICE "/dev/mpfs_generic_service"
-#define DIGEST_LINE_LEN 66u
+#define DIGEST_LINE_LEN 33u
 #define DIGEST_SERIAL_OFFSET 50u
 
 #define SIGN_COMMAND 26u
 #define SIGN_MSG_SIZE 48u
 #define SIGN_RESP_SIZE 104u
 #define SIGN_OFFSET 0u
-#define SIGN_READ_BYTES (3 + 2 * SIGN_RESP_SIZE) /* 3 for status and a space, 192 chars for the hex signature (96 bytes) */
 #define SIGN_DEVICE "/dev/mpfs_generic_service"
 
 
@@ -56,10 +55,10 @@ static void display_output(char *data, unsigned int byte_length)
 int main()
 {
     unsigned char inbuff[BUFFSIZE];
-    unsigned char *buff = inbuff;
     unsigned int command, msg_size, resp_size, send_offset, response_offset;
     FILE *fptr;
     char chr;
+    int i;
 
     for (;/*ever*/;)
     {
@@ -99,8 +98,17 @@ int main()
                 printf("Error! opening file\n");
                 exit(1);
             }
-            fscanf(fptr, "%[^\n]", inbuff);
-            printf("Icicle kit serial number: %s\n", inbuff);
+            fscanf(fptr, "%17s", inbuff);
+            if (*inbuff){
+                printf("Error getting serial number: %02x", *inbuff);
+            }
+            else {
+                printf("Icicle Kit Serial Number: \n");
+                for(i = 1; i < SERIAL_RESP_SIZE + 1; i++){
+                    printf("%02x", inbuff[i]);
+                }
+                printf("\n");
+            }
             fclose(fptr);
             break;
         case '2':
@@ -133,9 +141,16 @@ int main()
             }
             printf("pfsoc fpga digest:\n");
             size_t ret;
+            ret = fread(inbuff, 1, 1, fptr);
+            if (*inbuff){
+                printf("Error getting digest: %02x", *inbuff);
+            }
             do {
                 ret = fread(inbuff, 1, DIGEST_LINE_LEN, fptr);
-                printf("%.*s", (unsigned int)ret, inbuff);
+                for(i = 0; i < DIGEST_LINE_LEN; i++){
+                    printf("%02x", inbuff[i]);
+                }
+                printf("\n");
             } while (ret == DIGEST_LINE_LEN);
             if (feof(fptr))
             {
@@ -173,7 +188,6 @@ int main()
             resp_size = SIGN_RESP_SIZE;
             send_offset = SIGN_OFFSET;
             response_offset = SIGN_MSG_SIZE + SIGN_OFFSET;
-            buff = inbuff + 3; /* + 3 to skip response code */
             fprintf(fptr, "%c%c%c%c%c%c%c%c%c47f05d367b0c32e438fb63e6cf4a5f35c2aa2f90dc7543f8",
                     command,
                     (char)msg_size, (char)(msg_size >> 8),
@@ -188,41 +202,17 @@ int main()
                 exit(1);
             }
             /* read back 104 byte DER format signature */
-            fread(inbuff, SIGN_READ_BYTES, 1, fptr);
-            fclose(fptr);
-            printf("status signature:\r\n%.*s\r\n", SIGN_READ_BYTES, inbuff);
-            break;
-        case '5':
-            if (access(DIGEST_DEVICE, F_OK))
-            {
-                printf("Error! file doesnt exist\n");
-                exit(1);
+            ret = fread(inbuff, SIGN_RESP_SIZE + 1, 1, fptr); /* + 1 for status */
+            if (*inbuff){
+                printf("Error getting signature: %02x", *inbuff);
             }
-            else if ((fptr = fopen(DIGEST_DEVICE, "w")) == NULL)
-            {
-                printf("Error! opening file\n");
-                exit(1);
+            else {
+                printf("status signature:\n");
+                for(i = 1; i < SIGN_RESP_SIZE + 1; i++){
+                    printf("%02x", inbuff[i]);
+                }
+                printf("\n");
             }
-            command = DIGEST_COMMAND;
-            msg_size = DIGEST_MSG_SIZE;
-            resp_size = DIGEST_RESP_SIZE;
-            send_offset = DIGEST_OFFSET;
-            response_offset = DIGEST_OFFSET;
-            fprintf(fptr, "%c%c%c%c%c%c%c%c%c",
-                    command,
-                    (char)msg_size, (char)(msg_size >> 8),
-                    (char)resp_size, (char)(resp_size >> 8),
-                    (char)send_offset, (char)(send_offset >> 8),
-                    (char)response_offset, (char)(response_offset >> 8));
-            fclose(fptr);
-            if ((fptr = fopen(DIGEST_DEVICE, "r")) == NULL)
-            {
-                printf("Error! opening file\n");
-                exit(1);
-            }
-            fseek(fptr, DIGEST_SERIAL_OFFSET, SEEK_SET);
-            fscanf(fptr, "%[^\n]", inbuff);
-            printf("Icicle kit serial number: %s\n", inbuff);
             fclose(fptr);
             break;
         case 'e':

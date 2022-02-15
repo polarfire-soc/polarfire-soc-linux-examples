@@ -19,14 +19,14 @@
 #define SIGN_MSG_SIZE 48u
 #define SIGN_OFFSET 0u
 #define SIGN_SIZE 104u
-#define SIGN_READ_BYTES (3 + 2 * SIGN_SIZE) /* 3 for status and a space, 192 chars for the hex signature (96 bytes) */
+#define SIGN_READ_BYTES (1 + SIGN_SIZE) /* + 1 for status */
 #define SIGN_DEVICE "/dev/mpfs_generic_service"
 
 #define CERT_COMMAND 0x3U
 #define CERT_MSG_SIZE 0u
 #define CERT_OFFSET 0u
 #define CERT_SIZE 1024u
-#define CERT_READ_BYTES (3 + 2 * CERT_SIZE) /* 3 for status and a space, 2048 chars for the hex signature (96 bytes) */
+#define CERT_READ_BYTES (1 + CERT_SIZE) /* + 1 for status */
 #define CERT_DEVICE "/dev/mpfs_generic_service"
 
 void get_hash(const unsigned char *msg, const size_t msg_len, unsigned char *hash, size_t *hash_len)
@@ -49,7 +49,6 @@ void get_hash(const unsigned char *msg, const size_t msg_len, unsigned char *has
 void get_signature(const unsigned char *hash, const size_t hash_len, const size_t outbufflen, unsigned char *outbuff)
 {
     unsigned char inbuff[BUFFSIZE];
-    unsigned char *buff = inbuff + 3; /* + 3 to skip response code */
     int inc;
     FILE *fptr;
     if (access(SIGN_DEVICE, F_OK))
@@ -84,18 +83,12 @@ void get_signature(const unsigned char *hash, const size_t hash_len, const size_
     fread(inbuff, SIGN_READ_BYTES, 1, fptr);
     fclose(fptr);
 
-    /* convert hex string to char */
-    for (size_t count = 0; count < outbufflen; count++)
-    {
-        sscanf(buff, "%2hhx", &outbuff[count]);
-        buff += 2;
-    }
+    memcpy(outbuff, inbuff + 1, SIGN_SIZE);
 }
 
 void get_cert(const size_t outbufflen, unsigned char *outbuff)
 {
     unsigned char inbuff[BUFFSIZE];
-    unsigned char *buff = inbuff + 3; /* + 3 to skip response code */
     FILE *fptr;
 
     if (access(CERT_DEVICE, F_OK))
@@ -129,12 +122,7 @@ void get_cert(const size_t outbufflen, unsigned char *outbuff)
     fread(inbuff, CERT_READ_BYTES, 1, fptr);
     fclose(fptr);
 
-    /* convert hex string to char */
-    for (size_t count = 0; count < outbufflen; count++)
-    {
-        sscanf(buff, "%2hhx", &outbuff[count]);
-        buff += 2;
-    }
+    memcpy(outbuff, inbuff + 1, CERT_SIZE);
 }
 
 int main()

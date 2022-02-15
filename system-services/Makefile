@@ -10,3 +10,4 @@ all: system-services-example.c signature-verification-demo.c
 clean: 
 	$(RM) system-services-example
 	$(RM) signature-verification-demo
+
