@@ -1,4 +1,4 @@
-CC = gcc
+CC ?= gcc
 INCLUDE = .
 CFLAGS = -I$(INCLUDE) -Wall -Wpedantic
 #LIBS = -ldmalloc -lm
