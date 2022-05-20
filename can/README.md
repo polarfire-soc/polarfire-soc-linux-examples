@@ -19,12 +19,12 @@ Once built, it can be run:
 ```
 A successful execution should look like:
 ```
-locating device for uiocan0
+locating device for can@2010c000
 located /dev/uio1
 opened /dev/uio1 (r,w)
 mapped 0x1000 bytes for /dev/uio1
-setting can device at /dev/uio1 into loopback mode
-sent msg: 'example'
+setting can device at /dev/uio1 into local loopback mode
+send msg: 'example'
 received msg: 'example'
 unmapped /dev/uio1
 closed /dev/uio1
