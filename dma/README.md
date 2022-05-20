@@ -48,12 +48,15 @@ To run the application, follow these steps:
 
 ```
 root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for fpga_dma0
-located /dev/uio10
-opened /dev/uio10 (r,w)
+locating device for dma-controller@60020000
+located /dev/uio2 
+opened /dev/uio2 (r,w)
+mapped 0x1000 bytes for /dev/uio2
 locating device for fpga_lsram
-located /dev/uio0
+located /dev/uio0 
 opened /dev/uio0 (r,w)
+mapped 0x1000 bytes for /dev/uio0
+mmap at c0000000 successful
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
@@ -66,13 +69,15 @@ opened /dev/uio0 (r,w)
    After successful completion of memory test on LSRAM, "LSRAM memory test passed with incremental pattern" message is displayed on console.
 
 ```
-root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for fpga_dma0
-located /dev/uio10
-opened /dev/uio10 (r,w)
+locating device for dma-controller@60020000
+located /dev/uio2 
+opened /dev/uio2 (r,w)
+mapped 0x1000 bytes for /dev/uio2
 locating device for fpga_lsram
-located /dev/uio0
+located /dev/uio0 
 opened /dev/uio0 (r,w)
+mapped 0x1000 bytes for /dev/uio0
+mmap at c0000000 successful
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
@@ -100,13 +105,15 @@ Comparing data
 3. Enter 2 to perform data transfer from LSRAM to uncached LPDDR4 memory region using Fabric DMA controller:
 
 ```
-root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for fpga_dma0
-located /dev/uio10
-opened /dev/uio10 (r,w)
+locating device for dma-controller@60020000
+located /dev/uio2 
+opened /dev/uio2 (r,w)
+mapped 0x1000 bytes for /dev/uio2
 locating device for fpga_lsram
-located /dev/uio0
+located /dev/uio0 
 opened /dev/uio0 (r,w)
+mapped 0x1000 bytes for /dev/uio0
+mmap at c0000000 successful
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM

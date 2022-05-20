@@ -123,7 +123,7 @@ struct can_device {
 #define NUM_UIO_DEVICES		(32)
 
 uint32_t verbose = 0;
-char uio_id_str[] = "uiocan0";
+char uio_id_str[] = "can@2010c000";
 char sysfs_template[] = "/sys/class/uio/uio%d/%s";
 
 void can_init(volatile struct can_device * dev, uint32_t bitrate)

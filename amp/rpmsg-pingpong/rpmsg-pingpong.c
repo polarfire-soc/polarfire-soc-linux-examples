@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 	/* Create endpoint from rpmsg char driver */
 	strcpy(eptinfo.name, "rpmsg-amp-demo-channel");
 	eptinfo.src = 0;
-	eptinfo.dst = 0xFFFFFFFF;
+	eptinfo.dst = 0;
 	ret = rpmsg_create_ept(charfd, &eptinfo);
 	if (ret) {
 		printf("failed to create RPMsg endpoint.\n");

@@ -21,7 +21,7 @@
 #include "fdma.h"
 
 #define UIO_LSRAM_DEVNAME      "fpga_lsram"
-#define UIO_DMA_DEVNAME        "fpga_dma0"
+#define UIO_DMA_DEVNAME        "dma-controller@60020000"
 
 #define DDR_MMAP_SIZE              0x10000
 
