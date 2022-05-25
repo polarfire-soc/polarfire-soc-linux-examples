@@ -6,16 +6,16 @@ These applications will read/write GPIO lines and also test interrupt processing
 
 For more information on which GPIO's are used in the Libero design, please refer to [icicle-kit-reference-design](https://github.com/polarfire-soc/icicle-kit-reference-design).
 
-### Description:
+### GPIO Connection Details
+The User LEDs (LED 1, 2, 3 and 4) are connected to GPIO#16/17/18/19 and are used by the test application 'gpiod-test' to verify the LED's blink.
 
-The User LEDs (LED 1, 2, 3 and 4) are blinked and SW#2 value is displayed by running a Linux application.
-On the Icicle-Kit reference SW2 / SW3 are connnected to GPIO#30/31 which can be used to verify GPIO events.
+The switches (SW2 / SW3) are connected to GPIO#30/31 and are used to verify the state of the pin in the 'gpiod-test' application and also the status change of the pins in the 'gpiod-event' application.
+
 
 ### Running the Application:
 
-The application 'gpiod-test' application will flash the user LED's or read the SW2 value.
-The application 'gpio-event <gpio#>' will display events for the GPIO#.
-
+The application 'gpiod-test' will blink the user LED's or read the GPIO#30 (SW2) value.
+The application 'gpiod-event <gpio#>' will display events for the GPIO#.
 
 ```
 root@icicle-kit-es:~# cd /opt/microchip/gpio
@@ -31,17 +31,13 @@ root@icicle-kit-es:/opt/microchip/gpio# ./gpiod-test
         Press any key to exit
 ```
 
-Type the `./gpio-event <gpio-pin>` command and Press Enter to execute the application.
+Type the `./gpiod-event <gpio-pin>` command and Press Enter to execute the application. As GPIO events are captured counts are displayed, or "no event" notifications if no GPIO event is detected in each 1 second window.
+The example will run continuously until either 20 windows have elapsed or ctrl+c is pressed.
 
 ```
-root@icicle-kit-es:/opt/microchip/gpio# ./gpio-event <gpio-pin>
-        # As GPIO events are captured they are displayed, application will exit after 10 iterations.
-        .
-        .
-        .
-        .
-        poll() GPIO <gpio-pin> interrupt occurred
-        .
-        .
-        .
+root@icicle-kit-es:/opt/microchip/gpio# ./gpiod-event <gpio-pin>
+        No event notification received on line
+        Got event notification on line #<gpio pin> x times
+        No event notification received on line
+        No event notification received on line
 ```

@@ -1,12 +1,12 @@
 # build an executable named gpiod-test and gpio-event
 CC ?= gcc
+LDFLAGS = -lgpiod
 
-gpiod-test: gpiod-test.c
-	$(CC) -lgpiod -o gpiod-test gpiod-test.c
+all: gpiod-test.c gpiod-event.c
+	$(CC) -o gpiod-test gpiod-test.c $(LDFLAGS)
+	$(CC) -o gpiod-event gpiod-event.c $(LDFLAGS)
 
-gpio-event: gpio-event-test.c
-	$(CC) -o gpio-event  gpio-event-test.c
+clean: 
+	$(RM) gpiod-test
+	$(RM) gpiod-event
 
-all:  gpiod-test gpio-event
-clean:
-	rm -rf gpiod-test gpio-event .*.swp .*.un* *~
