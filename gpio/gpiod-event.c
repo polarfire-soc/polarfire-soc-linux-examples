@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 	/* Run for 20 1 second windows */
 	i = 0;
 	int count_event = 0;
-	printf("Application will process up to 20 events, press ctrl+c to exit early.\n");
+	printf("Application will run for 20 1 second event windows, press ctrl+c to exit early.\n");
 	while (i++ < 20) {
 		ret = gpiod_line_event_wait(line, &ts);
 		if (ret < 0) {
