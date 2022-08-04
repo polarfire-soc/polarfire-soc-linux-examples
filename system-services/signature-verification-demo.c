@@ -63,7 +63,7 @@ void get_signature(const unsigned char *hash, const size_t hash_len, const size_
     }
     unsigned int command = SIGN_COMMAND, msg_size = SIGN_MSG_SIZE;
     unsigned int resp_size = SIGN_SIZE, send_offset = SIGN_OFFSET;
-    unsigned int response_offset = SIGN_MSG_SIZE + SIGN_OFFSET;
+    unsigned int response_offset = SIGN_MSG_SIZE + send_offset;
     fprintf(fptr, "%c%c%c%c%c%c%c%c%c", 
             (char)command,
             (char)msg_size, (char)(msg_size >> 8),
@@ -104,7 +104,7 @@ void get_cert(const size_t outbufflen, unsigned char *outbuff)
 
     unsigned int command = CERT_COMMAND, msg_size = CERT_MSG_SIZE;
     unsigned int resp_size = CERT_SIZE, send_offset = CERT_OFFSET;
-    unsigned int response_offset = CERT_OFFSET;
+    unsigned int response_offset = send_offset;
     fprintf(fptr, "%c%c%c%c%c%c%c%c%c",
             command,
             (char)msg_size, (char)(msg_size >> 8),

@@ -85,7 +85,7 @@ int main()
             msg_size = SERIAL_MSG_SIZE;
             resp_size = SERIAL_RESP_SIZE;
             send_offset = SERIAL_OFFSET;
-            response_offset = SERIAL_OFFSET;
+            response_offset = send_offset;
             fprintf(fptr, "%c%c%c%c%c%c%c%c%c",
                     command,
                     (char)msg_size, (char)(msg_size >> 8),
@@ -126,7 +126,7 @@ int main()
             msg_size = DIGEST_MSG_SIZE;
             resp_size = DIGEST_RESP_SIZE;
             send_offset = DIGEST_OFFSET;
-            response_offset = DIGEST_OFFSET;
+            response_offset = send_offset;
             fprintf(fptr, "%c%c%c%c%c%c%c%c%c",
                     command,
                     (char)msg_size, (char)(msg_size >> 8),
@@ -187,7 +187,7 @@ int main()
             msg_size = SIGN_MSG_SIZE;
             resp_size = SIGN_RESP_SIZE;
             send_offset = SIGN_OFFSET;
-            response_offset = SIGN_MSG_SIZE + SIGN_OFFSET;
+            response_offset = SIGN_MSG_SIZE + send_offset;
             fprintf(fptr, "%c%c%c%c%c%c%c%c%c47f05d367b0c32e438fb63e6cf4a5f35c2aa2f90dc7543f8",
                     command,
                     (char)msg_size, (char)(msg_size >> 8),
