@@ -21,13 +21,13 @@
 #include "fdma.h"
 
 #define UIO_LSRAM_DEVNAME      "fpga_lsram"
-#define UIO_DMA_DEVNAME        "dma-controller@60020000"
+#define UIO_DMA_DEVNAME        "dma-controller@60010000"
 
 #define DDR_MMAP_SIZE              0x10000
 
 #define FILENAME_LEN           (256)
 
-#define LSRAM_BASE             0x61000000U
+#define LSRAM_BASE             0x60000000U
 #define UNCACHED_DDR_BASE      0xC0000000U
 #define SYSFS_PATH_LEN         (128)
 #define ID_STR_LEN             (32)

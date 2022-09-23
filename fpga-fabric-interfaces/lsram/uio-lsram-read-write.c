@@ -128,9 +128,9 @@ int main(int argc, char* argvp[])
                 close(uioFd_0);
                 return -1;
             }
-            printf("\nSize of memory at 0x61000000 is 0x%x\n", mmap_size);
-            printf("\nWriting incremental pattern starting from address 0x61000000\n");
-            printf("\nReading data starting from address 0x61000000 \n");
+            printf("\nSize of memory at 0x60000000 is 0x%x\n", mmap_size);
+            printf("\nWriting incremental pattern starting from address 0x60000000\n");
+            printf("\nReading data starting from address 0x60000000 \n");
             printf("\nComparing data \n");
 
             for(i=0;i<(mmap_size/4);i++) {
