@@ -21,9 +21,9 @@ The following table lists the addresses and sizes included in device tree nodes 
 
 | Component | Start Addr | Size |
 | --- | --- | --- |
-| LSRAM | 0x61000000 | 4 K |
+| LSRAM | 0x60000000 | 4 K |
 | LPDDR4 | 0xC0000000 | 64 K |
-| DMA Controller | 0x60020000 | 4 K |
+| DMA Controller | 0x60010000 | 4 K |
 
 The C application includes the following DMA register configuration to initiate data transfers.
 
@@ -48,7 +48,7 @@ To run the application, follow these steps:
 
 ```
 root@icicle-kit-es:/opt/microchip/dma# ./uio-dma-interrupt
-locating device for dma-controller@60020000
+locating device for dma-controller@60010000
 located /dev/uio2 
 opened /dev/uio2 (r,w)
 mapped 0x1000 bytes for /dev/uio2
@@ -123,7 +123,8 @@ mmap at c0000000 successful
 
 Initialized LSRAM (64KB) with incremental pattern.
 Fabric DMA controller configured for LSRAM to LPDDR4 data transfer.
-        Source Address (LSRAM) - 0x61000000
+DMAC Version = 0x20064
+        Source Address (LSRAM) - 0x60000000
         Destination Address (LPDDR4) - 0xc0000000
 
         Byte count - 0x10000
