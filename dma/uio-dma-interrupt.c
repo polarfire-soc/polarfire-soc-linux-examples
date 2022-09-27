@@ -23,8 +23,6 @@
 #define UIO_LSRAM_DEVNAME      "fpga_lsram"
 #define UIO_DMA_DEVNAME        "dma-controller@60010000"
 
-#define DDR_MMAP_SIZE              0x10000
-
 #define FILENAME_LEN           (256)
 
 #define LSRAM_BASE             0x60000000U
@@ -165,7 +163,7 @@ int main(void)
     /* Map in uncached DDR */
     uioFd_2 = open("/dev/mem", O_RDWR);
 
-    ddr_mem = mmap(NULL, DDR_MMAP_SIZE, PROT_READ | PROT_WRITE,
+    ddr_mem = mmap(NULL, FDMA_TR_SIZE, PROT_READ | PROT_WRITE,
             MAP_SHARED, uioFd_2, UNCACHED_DDR_BASE);
     if (ddr_mem == MAP_FAILED) {
         fprintf(stderr, "Cannot mmap: %s\n", strerror(errno));
@@ -276,7 +274,7 @@ int main(void)
     if(ret < 0) {
         printf("unable to unmap the lsram_mem\n");
     }
-    ret = munmap((void*)ddr_mem, DDR_MMAP_SIZE);
+    ret = munmap((void*)ddr_mem, FDMA_TR_SIZE);
     if(ret < 0) {
         printf("unable to unmap the ddr_mem\n");
     }
