@@ -6,7 +6,7 @@ Using this application, reads and writes to memory mapped FPGA Fabric LSRAM are 
 
 ## Description
 
-In the Libero design, an FPGA fabric LSRAM component is interfaced to the MSS using FIC_0 and it is accessible to the processors at 0x61000000. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
+In the Libero design, an FPGA fabric LSRAM component is interfaced to the MSS using FIC_0 and it is accessible to the processors at 0x60000000. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
 
 The Microchip PolarFire SoC Yocto BSP includes the following support to access LSRAM from user space:
 
@@ -51,8 +51,8 @@ opened /dev/uio0 (r,w)
          Enter 1 to perform memory test on LSRAM
          Enter 2 to Exit
 1
-Writing incremental pattern starting from address 0x61000000
-Reading data  starting from address 0x61000000
+Writing incremental pattern starting from address 0x60000000
+Reading data  starting from address 0x60000000
 Comparing data
 
 **** LSRAM memory test passed successfully *****
