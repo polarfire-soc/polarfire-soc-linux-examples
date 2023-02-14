@@ -26,7 +26,7 @@
 #define FILENAME_LEN           (256)
 
 #define LSRAM_BASE             0x60000000U
-#define UNCACHED_DDR_BASE      0xC0000000U
+#define UNCACHED_DDR_BASE      0xC8000000U
 #define SYSFS_PATH_LEN         (128)
 #define ID_STR_LEN             (32)
 #define UIO_DEVICE_PATH_LEN    (32)

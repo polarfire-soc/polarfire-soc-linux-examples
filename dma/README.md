@@ -7,7 +7,7 @@ Using this application, a shared uncached LPDDR4 memory space is accessed by  li
 
 ## Description
 
-In the Libero design, fabric LSRAM and fabric DMA Controller are interfaced to MSS via FIC. The shared LPDDR4 memory region (0XC0000000-0xC000FFFF) is accessed via  uncached path for fabric. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
+In the Libero design, fabric LSRAM and fabric DMA Controller are interfaced to MSS via FIC. The shared LPDDR4 memory region (0XC8000000-0xC800FFFF) is accessed via  uncached path for fabric. For more information about the Libero design, see [ICICLE Kit Reference Design](https://github.com/polarfire-soc/icicle-kit-reference-design).
 
 The Microchip PolarFire SoC Yocto BSP includes the following support to access the uncached LPDDR4 region from user space.
 
@@ -22,7 +22,7 @@ The following table lists the addresses and sizes included in device tree nodes 
 | Component | Start Addr | Size |
 | --- | --- | --- |
 | LSRAM | 0x60000000 | 4 K |
-| LPDDR4 | 0xC0000000 | 64 K |
+| LPDDR4 | 0xC8000000 | 64 K |
 | DMA Controller | 0x60010000 | 4 K |
 
 The C application includes the following DMA register configuration to initiate data transfers.
@@ -56,7 +56,7 @@ locating device for fpga_lsram
 located /dev/uio0 
 opened /dev/uio0 (r,w)
 mapped 0x1000 bytes for /dev/uio0
-mmap at c0000000 successful
+mmap at c8000000 successful
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
@@ -77,7 +77,7 @@ locating device for fpga_lsram
 located /dev/uio0 
 opened /dev/uio0 (r,w)
 mapped 0x1000 bytes for /dev/uio0
-mmap at c0000000 successful
+mmap at c8000000 successful
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
@@ -113,7 +113,7 @@ locating device for fpga_lsram
 located /dev/uio0 
 opened /dev/uio0 (r,w)
 mapped 0x1000 bytes for /dev/uio0
-mmap at c0000000 successful
+mmap at c8000000 successful
 
          # Choose one of  the following options:
          Enter 1 to perform memory test on LSRAM
@@ -125,7 +125,7 @@ Initialized LSRAM (64KB) with incremental pattern.
 Fabric DMA controller configured for LSRAM to LPDDR4 data transfer.
 DMAC Version = 0x20064
         Source Address (LSRAM) - 0x60000000
-        Destination Address (LPDDR4) - 0xc0000000
+        Destination Address (LPDDR4) - 0xc8000000
 
         Byte count - 0x10000
 
