@@ -1,5 +1,28 @@
 # PolarFire SoC System Services Examples
 
+## Loading the mpfs-generic-service module
+
+These examples rely on the presence of the mpfs-generic-service driver.
+This driver exposes all of the features of the System Controller to userspace as
+a character device, so that developing applications that use the System
+Controller is made easier.
+Exposing the entire System Controller is not ideal, as many of the services can
+kill the running operating system, or otherwise disrupt normal operation, in a
+way that userspace should not be able to on a production system.  
+In our default kernel configuration, `mpfs_defconfig`, this driver is enabled as
+a module.
+To load the module, which is required to run the below applications, run:
+
+```bash
+modprobe mpfs-generic-service
+```
+
+The following message will appear when the module is loaded:
+
+```text
+mpfs-generic-service mpfs-generic-service: Registered MPFS generic service - FOR DEVELOPMENT ONLY, DO NOT USE IN PRODUCTION
+```
+
 ## system-services-example
 This example application is a basic demonstration of how to acquire:   
 - the FPGA device serial number
