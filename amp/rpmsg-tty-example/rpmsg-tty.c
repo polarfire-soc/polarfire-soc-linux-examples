@@ -13,7 +13,7 @@
 #include <sched.h>
 #include <string.h>
 
-#define DEFAULT_RPMSG_DEVICE "/dev/ttyRPMSG4"
+#define DEFAULT_RPMSG_DEVICE "/dev/ttyRPMSG0"
 #define RPMSG_MAX_SIZE		256
 
 char *rpmsg_device = "";
