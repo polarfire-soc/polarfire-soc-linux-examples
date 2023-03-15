@@ -17,13 +17,12 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <limits.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <time.h>
 #include <fcntl.h>
 #include <string.h>
-#include <stdint.h>
 #include <linux/rpmsg.h>
 
 struct _payload {
@@ -31,8 +30,6 @@ struct _payload {
 	unsigned long size;
 	char data[];
 };
-
-static int charfd = -1, fd = -1, err_cnt;
 
 struct _payload *i_payload;
 struct _payload *r_payload;
@@ -45,7 +42,7 @@ struct _payload *r_payload;
 
 #define RPMSG_BUS_SYS "/sys/bus/rpmsg"
 
-static int rpmsg_create_ept(int rpfd, struct rpmsg_endpoint_info *eptinfo)
+static int app_rpmsg_create_ept(int rpfd, struct rpmsg_endpoint_info *eptinfo)
 {
 	int ret;
 
@@ -139,10 +136,8 @@ static int bind_rpmsg_chrdev(const char *rpmsg_dev_name)
 static int get_rpmsg_chrdev_fd(const char *rpmsg_dev_name,
 			       char *rpmsg_ctrl_name)
 {
-	char dpath[256];
-	char fpath[261];
+	char dpath[2*NAME_MAX];
 	char *rpmsg_ctrl_prefix = "rpmsg_ctrl";
-	int count = 0;
 	DIR *dir;
 	struct dirent *ent;
 	int fd;
@@ -154,26 +149,13 @@ static int get_rpmsg_chrdev_fd(const char *rpmsg_dev_name,
 		return -EINVAL;
 	}
 	while ((ent = readdir(dir)) != NULL) {
-		if (!strncmp(ent->d_name, rpmsg_ctrl_prefix,
-			    strlen(rpmsg_ctrl_prefix))) {
-			printf("Opening file %s.\n", ent->d_name);
-			sprintf(fpath, "/dev/%s", ent->d_name);
-
-			while ( count < 10 ) {
-				if(access( fpath, F_OK ) != 0 ) {
-					sleep(0.5);
-				}
-				else {
-					break;
-				}
-				count++;
-			}
-
-			fd = open(fpath, O_RDWR | O_NONBLOCK);
+		if (!strncmp(ent->d_name, rpmsg_ctrl_prefix, strlen(rpmsg_ctrl_prefix))) {
+			sprintf(dpath, "/dev/%s", ent->d_name);
+			closedir(dir);
+			fd = open(dpath, O_RDWR | O_NONBLOCK);
 			if (fd < 0) {
-				fprintf(stderr,
-					"Failed to open rpmsg char dev %s,%s\n",
-					fpath, strerror(errno));
+				fprintf(stderr, "open %s, %s\n",
+					dpath, strerror(errno));
 				return fd;
 			}
 			sprintf(rpmsg_ctrl_name, "%s", ent->d_name);
@@ -181,23 +163,66 @@ static int get_rpmsg_chrdev_fd(const char *rpmsg_dev_name,
 		}
 	}
 
-	fprintf(stderr, "No rpmsg char dev file is found\n");
+	fprintf(stderr, "No rpmsg_ctrl file found in %s\n", dpath);
+	closedir(dir);
 	return -EINVAL;
+}
+
+static void set_src_dst(char *out, struct rpmsg_endpoint_info *pep)
+{
+	long dst = 0;
+	char *lastdot = strrchr(out, '.');
+
+	if (lastdot == NULL)
+		return;
+	dst = strtol(lastdot + 1, NULL, 10);
+	if ((errno == ERANGE && (dst == LONG_MAX || dst == LONG_MIN))
+	    || (errno != 0 && dst == 0)) {
+		return;
+	}
+	pep->dst = (unsigned int)dst;
+}
+
+static void lookup_channel(char *out, struct rpmsg_endpoint_info *pep)
+{
+	char dpath[] = RPMSG_BUS_SYS "/devices";
+	struct dirent *ent;
+	DIR *dir = opendir(dpath);
+
+	if (dir == NULL) {
+		fprintf(stderr, "opendir %s, %s\n", dpath, strerror(errno));
+		return;
+	}
+	while ((ent = readdir(dir)) != NULL) {
+		if (strstr(ent->d_name, pep->name)) {
+			strncpy(out, ent->d_name, NAME_MAX);
+			set_src_dst(out, pep);
+			closedir(dir);
+			return;
+		}
+	}
+	closedir(dir);
+	fprintf(stderr, "No dev file for %s in %s\n", pep->name, dpath);
 }
 
 int main(int argc, char *argv[])
 {
 	int ret, i, j;
-	int size, bytes_rcvd, bytes_sent;
-	err_cnt = 0;
-	int opt;
-	char *rpmsg_dev="virtio0.rpmsg-amp-demo-channel.-1.0";
+	int size, bytes_rcvd, bytes_sent, err_cnt = 0;
+	int opt, charfd, fd;
 	int ntimes = 1;
-	char fpath[256];
+	char *rpmsg_dev="virtio0.rpmsg-amp-demo-channel.-1.0";
+	char rpmsg_ctrl_dev_name[NAME_MAX] = "virtio0.rpmsg_ctrl.0.0";
 	char rpmsg_char_name[16];
-	struct rpmsg_endpoint_info eptinfo;
+	char fpath[2*NAME_MAX];
+	struct rpmsg_endpoint_info eptinfo = {
+		.name = "rpmsg-openamp-demo-channel", .src = 0, .dst = 0
+	};
 	char ept_dev_name[16];
 	char ept_dev_path[32];
+
+	printf("\r\n Echo test start \r\n");
+	lookup_channel(rpmsg_dev, &eptinfo);
 
 	while ((opt = getopt(argc, argv, "d:n:")) != -1) {
 		switch (opt) {
@@ -212,46 +237,39 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
-	printf("\r\n Echo test start \r\n");
 
-	/* Load rpmsg_char driver */
-	printf("\r\nMaster>probe rpmsg_char\r\n");
-	ret = system("modprobe rpmsg_char");
-	if (ret < 0) {
-		perror("Failed to load rpmsg_char driver.\n");
-		return -EINVAL;
-	}
-
-	printf("\r\n Open rpmsg dev %s! \r\n", rpmsg_dev);
-	sprintf(fpath, "%s/devices/%s", RPMSG_BUS_SYS, rpmsg_dev);
+	sprintf(fpath, RPMSG_BUS_SYS "/devices/%s", rpmsg_dev);
 	if (access(fpath, F_OK)) {
-		fprintf(stderr, "Not able to access rpmsg device %s, %s\n",
-			fpath, strerror(errno));
+		fprintf(stderr, "access(%s): %s\n", fpath, strerror(errno));
 		return -EINVAL;
 	}
 	ret = bind_rpmsg_chrdev(rpmsg_dev);
 	if (ret < 0)
 		return ret;
-	charfd = get_rpmsg_chrdev_fd(rpmsg_dev, rpmsg_char_name);
-	if (charfd < 0)
-		return charfd;
 
-	/* Create endpoint from rpmsg char driver */
-	strcpy(eptinfo.name, "rpmsg-amp-demo-channel");
-	eptinfo.src = 0;
-	eptinfo.dst = 0;
-	ret = rpmsg_create_ept(charfd, &eptinfo);
+	/* kernel >= 6.0 has new path for rpmsg_ctrl device */
+	charfd = get_rpmsg_chrdev_fd(rpmsg_ctrl_dev_name, rpmsg_char_name);
+	if (charfd < 0) {
+		/* may be kernel is < 6.0 try previous path */
+		charfd = get_rpmsg_chrdev_fd(rpmsg_dev, rpmsg_char_name);
+		if (charfd < 0)
+			return charfd;
+	}
+
+	ret = app_rpmsg_create_ept(charfd, &eptinfo);
 	if (ret) {
-		printf("failed to create RPMsg endpoint.\n");
+		fprintf(stderr, "app_rpmsg_create_ept %s\n", strerror(errno));
 		return -EINVAL;
 	}
 	if (!get_rpmsg_ept_dev_name(rpmsg_char_name, eptinfo.name,
 				    ept_dev_name))
 		return -EINVAL;
 	sprintf(ept_dev_path, "/dev/%s", ept_dev_name);
+
+	printf("open %s\n", ept_dev_path);
 	fd = open(ept_dev_path, O_RDWR | O_NONBLOCK);
 	if (fd < 0) {
-		perror("Failed to open rpmsg device.");
+		perror(ept_dev_path);
 		close(charfd);
 		return -1;
 	}
@@ -264,7 +282,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-for (j=0; j < ntimes; j++){
+	for (j=0; j < ntimes; j++){
 		printf("\r\n **********************************");
 		printf("****\r\n");
 		printf("\r\n  Echo Test Round %d \r\n", j);
