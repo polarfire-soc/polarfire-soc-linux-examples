@@ -46,19 +46,16 @@ struct mem_pool {
 	struct mem_pool *next;
 };
 
-#define NUM_REGIONS (6)
+#define NUM_REGIONS (3)
 
 struct region {
 	uint64_t base;
 	size_t size;
 	char name[20];
 } regions[NUM_REGIONS] = {
-	{   0x80000000,  0x40000000, "DDRC-CACHE1" },
-	{   0xC0000000,  0x10000000, "DDRC-NC1" },
-	{   0xD0000000,  0x10000000, "DDRC-NC-WCB1" },
-	{ 0x1000000000, 0x400000000, "DDRC-CACHE2" },
-	{ 0x1400000000, 0x400000000, "DDRC-NC2" },
-	{ 0x1800000000, 0x400000000, "DDRC-NC-WCB2" },
+	{   0x88000000,  0x20000000, "DDRC-CACHE" },
+	{   0xC8000000,  0x20000000, "DDRC-NC" },
+	{   0xD8000000,  0x20000000, "DDRC-NC-WCB" },
 };
 
 struct buff {

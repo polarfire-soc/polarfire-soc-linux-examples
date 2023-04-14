@@ -110,7 +110,7 @@ To get `phys_addr`, `cat` the relevant file, in a similar manner to this.
 
 ```sh
 # cat /sys/class/u-dma-buf/udmabuf-ddrc0/phys_addr
-0x0000000080000000
+0x0000000088000000
 ```
 
 And, to see a `size` value for a particular device, `cat` the relevant file,
