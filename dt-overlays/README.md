@@ -38,6 +38,9 @@ root@icicle-kit-es:~# vim rpi-lps25h.dtso
 /plugin/;
 
 &i2c2 {
+	#address-cells = <0x01>;
+	#size-cells = <0x00>;
+
 	lps25h-press@5c {
 		compatible = "st,lps25h-press";
 		reg = <0x5c>;
