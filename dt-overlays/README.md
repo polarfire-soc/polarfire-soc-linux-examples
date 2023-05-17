@@ -30,7 +30,7 @@ KERNEL_DTC_FLAGS += "-@"
 
 Create the dt overlay as follows:
 ```text
-root@icicle-kit-es:~# vim rpi-lps25h.dtso
+root@icicle-kit-es:~# vim rpi-pressure.dtso
 ```
 
 ```devicetree
@@ -38,10 +38,10 @@ root@icicle-kit-es:~# vim rpi-lps25h.dtso
 /plugin/;
 
 &i2c2 {
-	#address-cells = <0x01>;
-	#size-cells = <0x00>;
+	#address-cells = <0x1>;
+	#size-cells = <0x0>;
 
-	lps25h-press@5c {
+	pressure@5c {
 		compatible = "st,lps25h-press";
 		reg = <0x5c>;
 		status = "okay";
@@ -54,11 +54,11 @@ root@icicle-kit-es:~# vim rpi-lps25h.dtso
 Run the following commands to first compile the overlay and then apply it
 
 ```bash
-root@icicle-kit-es:~# dtc -@ -O dtb -o rpi-lps25h.dtbo rpi-lps25h.dtso
-root@icicle-kit-es:~# /opt/microchip/dt-overlays/overlay.sh rpi-lps25h.dtbo
+root@icicle-kit-es:~# dtc -@ -O dtb -o rpi-pressure.dtbo rpi-pressure.dtso
+root@icicle-kit-es:~# /opt/microchip/dt-overlays/overlay.sh rpi-pressure.dtbo
 ```
 
-The following kernel config options are needed for the lps25h sensor to work and has been enabled in Yocto:
+The following kernel config options are needed for the lps25h pressure sensor to work and has been enabled in Yocto:
  `CONFIG_IIO_ST_PRESS=y`.
 
 
@@ -70,7 +70,6 @@ The following commands can be used to load this overlay:
 ```bash
 root@icicle-kit-es:~# cd /boot/
 root@icicle-kit-es:/boot# /opt/microchip/dt-overlays/overlay.sh mpfs_icicle_rpi_sense_hat.dtbo
-root@icicle-kit-es:/boot# modprobe sensehat-core
 ```
 
 You should then see the drivers get loaded for the sensehat and the sensors on it.  
