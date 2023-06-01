@@ -9,9 +9,9 @@ import os, locale
 import subprocess
 
 # Set Locale
-locale.setlocale(locale.LC_ALL, 'en_US')
+locale.setlocale(locale.LC_ALL, "en_US")
 t = time.strftime("%a, %d %b %Y %H:%M:%S")
-print (t) # works fine: Fr, 05 Jun 2020 14:37:02
+print(t)  # works fine: Fr, 05 Jun 2020 14:37:02
 
 PORT = "4840"
 if sys.argv[1:]:
@@ -27,15 +27,29 @@ addspace = server.register_namespace(name)
 node = server.get_objects_node()
 
 motor_control_object = node.add_object(addspace, "Stepper Motor Controls")
-motor_start = motor_control_object.add_variable(addspace, "Stepper Motor Start (1111 - Start)", 0)
-motor_stop = motor_control_object.add_variable(addspace, "Stepper Motor Stop (1111 - Stop)", 0)
-motor_dir = motor_control_object.add_variable(addspace, "Stepper Motor Direction (0-Clockwise, 1-Anti Clockwise)", 0)
-motor_enable = motor_control_object.add_variable(addspace, "Stepper Motor Enable (1111 - Enable)", 0)
-motor_disable = motor_control_object.add_variable(addspace, "Stepper Motor Disable (1111 - Disable)", 0)
+motor_start = motor_control_object.add_variable(
+    addspace, "Stepper Motor Start (1111 - Start)", 0
+)
+motor_stop = motor_control_object.add_variable(
+    addspace, "Stepper Motor Stop (1111 - Stop)", 0
+)
+motor_dir = motor_control_object.add_variable(
+    addspace, "Stepper Motor Direction (0-Clockwise, 1-Anti Clockwise)", 0
+)
+motor_enable = motor_control_object.add_variable(
+    addspace, "Stepper Motor Enable (1111 - Enable)", 0
+)
+motor_disable = motor_control_object.add_variable(
+    addspace, "Stepper Motor Disable (1111 - Disable)", 0
+)
 motor_reset = motor_control_object.add_variable(addspace, "Stepper Motor Reset", 0)
 motor_steps = motor_control_object.add_variable(addspace, "Stepper Motor Steps", 200)
-motor_speed = motor_control_object.add_variable(addspace, "Stepper Motor Speed (1-Full, 2-Half, 3-Quarter, 0-Standby)", 3)
-command_control = motor_control_object.add_variable(addspace, "Motor Command Control (1111 - Updates Speed/Direction)", 0000)
+motor_speed = motor_control_object.add_variable(
+    addspace, "Stepper Motor Speed (1-Full, 2-Half, 3-Quarter, 0-Standby)", 3
+)
+command_control = motor_control_object.add_variable(
+    addspace, "Motor Command Control (1111 - Updates Speed/Direction)", 0000
+)
 
 motor_start.set_writable()
 motor_stop.set_writable()
@@ -50,28 +64,49 @@ command_control.set_writable()
 server.start()
 print("OPC Server started")
 
+
 def disable_motor():
     # program the CS pin on Mikrobus connector to logic 0
     register_address = "0x20002214"
-    register_value = subprocess.check_output(["devmem2", register_address]).decode().strip().splitlines()[-1].split()[5]
-    updated_value = register_value[:8] + 'D' + register_value[9:]
+    register_value = (
+        subprocess.check_output(["devmem2", register_address])
+        .decode()
+        .strip()
+        .splitlines()[-1]
+        .split()[5]
+    )
+    updated_value = register_value[:8] + "D" + register_value[9:]
     subprocess.call(["devmem2", register_address, "w", updated_value])
+
 
 def enable_motor():
     # program the CS pin on Mikrobus connector to logic 1
     register_address = "0x20002214"
-    register_value = subprocess.check_output(["devmem2", register_address]).decode().strip().splitlines()[-1].split()[5]
-    updated_value = register_value[:8] + 'E' + register_value[9:]
+    register_value = (
+        subprocess.check_output(["devmem2", register_address])
+        .decode()
+        .strip()
+        .splitlines()[-1]
+        .split()[5]
+    )
+    updated_value = register_value[:8] + "E" + register_value[9:]
     subprocess.call(["devmem2", register_address, "w", updated_value])
+
 
 def set_pwm_duty_cycle(pwm_pin, duty_cycle):
     with open(f"/sys/class/pwm/{pwm_pin}/duty_cycle", "w") as duty_cycle_file:
         duty_cycle_file.write(str(duty_cycle))
+
+
 def set_pwm_rate(pwm_pin, rate):
     with open(f"/sys/class/pwm/{pwm_pin}/period", "w") as period_file:
         period_file.write(str(rate))
+
+
 def sleep_milliseconds(microseconds):
-        time.sleep(microseconds / 1_000)
+    time.sleep(microseconds / 1_000)
+
+
 try:
     while True:
         start = motor_start.get_value()
@@ -174,4 +209,3 @@ finally:
     disable_motor()
     server.stop()
     print("OPC Server stopped")
-

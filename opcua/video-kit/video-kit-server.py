@@ -9,9 +9,9 @@ import os, locale
 import subprocess
 
 # Set Locale
-locale.setlocale(locale.LC_ALL, 'en_US')
+locale.setlocale(locale.LC_ALL, "en_US")
 t = time.strftime("%a, %d %b %Y %H:%M:%S")
-print (t) # works fine: Fr, 05 Jun 2020 14:37:02
+print(t)  # works fine: Fr, 05 Jun 2020 14:37:02
 
 PORT = "4840"
 if sys.argv[1:]:
@@ -30,18 +30,36 @@ camera_control_object = node.add_object(addspace, "Camera Controls")
 server_start = camera_control_object.add_variable(addspace, "Streaming Start", 0000)
 server_stop = camera_control_object.add_variable(addspace, "Streaming Stop", 0000)
 
-quality_factor = camera_control_object.add_variable(addspace, "Camera - Qaulity Factor [25-50]", 30)
-brightness = camera_control_object.add_variable(addspace, "Camera - Brightness Control [0-255]", 137)
-contrast = camera_control_object.add_variable(addspace, "Camera - Contrast Control [0-255]", 154)
-red_gain = camera_control_object.add_variable(addspace, "Camera - Red Gain [0-255]", 122)
-green_gain = camera_control_object.add_variable(addspace, "Camera - Green Gain [0-255]", 102)
-blue_gain = camera_control_object.add_variable(addspace, "Camera - Blue Gain [0-255]", 138)
+quality_factor = camera_control_object.add_variable(
+    addspace, "Camera - Qaulity Factor [25-50]", 30
+)
+brightness = camera_control_object.add_variable(
+    addspace, "Camera - Brightness Control [0-255]", 137
+)
+contrast = camera_control_object.add_variable(
+    addspace, "Camera - Contrast Control [0-255]", 154
+)
+red_gain = camera_control_object.add_variable(
+    addspace, "Camera - Red Gain [0-255]", 122
+)
+green_gain = camera_control_object.add_variable(
+    addspace, "Camera - Green Gain [0-255]", 102
+)
+blue_gain = camera_control_object.add_variable(
+    addspace, "Camera - Blue Gain [0-255]", 138
+)
 
-command_control = camera_control_object.add_variable(addspace, "Vision Command Control", 0000)
+command_control = camera_control_object.add_variable(
+    addspace, "Vision Command Control", 0000
+)
 ip_address = camera_control_object.add_variable(addspace, "IP Address", "192.168.1.1")
 
-horizontal_resolution = camera_control_object.add_variable(addspace, "Camera - Horizontal Resolution", "1280")
-vertical_resolution = camera_control_object.add_variable(addspace, "Camera - Vertical Resolution", "720")
+horizontal_resolution = camera_control_object.add_variable(
+    addspace, "Camera - Horizontal Resolution", "1280"
+)
+vertical_resolution = camera_control_object.add_variable(
+    addspace, "Camera - Vertical Resolution", "720"
+)
 
 command_control.set_writable()
 server_start.set_writable()
@@ -59,11 +77,13 @@ vertical_resolution.set_writable()
 server.start()
 print("OPC Server started")
 
+
 def stop_stream():
-    args = 'v4l2-ctl -d /dev/video0 --set-ctrl=gain_automatic=0'
+    args = "v4l2-ctl -d /dev/video0 --set-ctrl=gain_automatic=0"
     subprocess.call(args, shell=True)
-    args = 'kill $(pidof ffmpeg)'
+    args = "kill $(pidof ffmpeg)"
     subprocess.call(args, shell=True)
+
 
 try:
     while True:
@@ -84,11 +104,15 @@ try:
         if server_start_value == 1111:
             print("Please wait while stream is being started")
             stop_stream()
-            args = 'ffmpeg  -i /dev/video0  -c:v copy -f rtp -sdp_file video.sdp "rtp://' + ip_address_value + ':10000" </dev/null  > messages 2>error_log &'
+            args = (
+                'ffmpeg  -i /dev/video0  -c:v copy -f rtp -sdp_file video.sdp "rtp://'
+                + ip_address_value
+                + ':10000" </dev/null  > messages 2>error_log &'
+            )
             subprocess.call(args, shell=True)
-            args = 'v4l2-ctl -d /dev/video0 --set-ctrl=gain_automatic=1'
+            args = "v4l2-ctl -d /dev/video0 --set-ctrl=gain_automatic=1"
             subprocess.call(args, shell=True)
-            args = 'v4l2-ctl -d /dev/v4l-subdev0 --set-ctrl=vertical_blanking=1170'
+            args = "v4l2-ctl -d /dev/v4l-subdev0 --set-ctrl=vertical_blanking=1170"
             subprocess.call(args, shell=True)
             server_start.set_value(0000)
 
@@ -101,13 +125,32 @@ try:
         # Check for update value, if matches then update the stream
         if command_control_value == 1111:
             print("Please wait while stream is being updated")
-            args = '/usr/bin/v4l2-ctl -d /dev/video0 --set-ctrl=quality_factor=' + str(quality_factor_value) + ' --set-ctrl=brightness=' + str(brightness_value) + ' --set-ctrl=contrast=' + str(contrast_value) + ' --set-ctrl=gain_red=' + str(red_gain_value) + ' --set-ctrl=gain_green=' + str(green_gain_value) + ' --set-ctrl=gain_blue=' + str(blue_gain_value)
+            args = (
+                "/usr/bin/v4l2-ctl -d /dev/video0 --set-ctrl=quality_factor="
+                + str(quality_factor_value)
+                + " --set-ctrl=brightness="
+                + str(brightness_value)
+                + " --set-ctrl=contrast="
+                + str(contrast_value)
+                + " --set-ctrl=gain_red="
+                + str(red_gain_value)
+                + " --set-ctrl=gain_green="
+                + str(green_gain_value)
+                + " --set-ctrl=gain_blue="
+                + str(blue_gain_value)
+            )
             subprocess.call(args, shell=True)
             # program Horizontal Resolution value
-            args = 'devmem2 0x40001078 w ' + str(horizontal_resolution_value) + ' >/dev/null'
+            args = (
+                "devmem2 0x40001078 w "
+                + str(horizontal_resolution_value)
+                + " >/dev/null"
+            )
             subprocess.call(args, shell=True)
             # program Vertical Resolution value
-            args = 'devmem2 0x4000107C w ' + str(vertical_resolution_value) + ' >/dev/null'
+            args = (
+                "devmem2 0x4000107C w " + str(vertical_resolution_value) + " >/dev/null"
+            )
             subprocess.call(args, shell=True)
             command_control.set_value(0000)
 
@@ -115,4 +158,3 @@ try:
 finally:
     server.stop()
     print("OPC Server stopped")
-

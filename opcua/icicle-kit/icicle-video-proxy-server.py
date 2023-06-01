@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 from opcua import ua, Server, Client
 
 # Set Locale
-locale.setlocale(locale.LC_ALL, 'en_US')
+locale.setlocale(locale.LC_ALL, "en_US")
 t = time.strftime("%a, %d %b %Y %H:%M:%S")
-print (t) # works fine: Fr, 05 Jun 2020 14:37:02
+print(t)  # works fine: Fr, 05 Jun 2020 14:37:02
 
 PORT = "4840"
 if sys.argv[1:]:
@@ -26,18 +26,38 @@ camera_control_object = node.add_object(addspace, "Video Kit - Camera Controls")
 start_server = camera_control_object.add_variable(addspace, "Streaming Start", 0000)
 stop_server = camera_control_object.add_variable(addspace, "Streaming Stop", 0000)
 
-quality_factor_server = camera_control_object.add_variable(addspace, "Camera - Qaulity Factor [25-50]", 30)
-brightness_server = camera_control_object.add_variable(addspace, "Camera - Brightness Control [0-255]", 137)
-contrast_server = camera_control_object.add_variable(addspace, "Camera - Contrast Control [0-255]", 154)
-red_gain_server = camera_control_object.add_variable(addspace, "Camera - Red Gain [0-255]", 122)
-green_gain_server = camera_control_object.add_variable(addspace, "Camera - Green Gain [0-255]", 102)
-blue_gain_server = camera_control_object.add_variable(addspace, "Camera - Blue Gain [0-255]", 138)
+quality_factor_server = camera_control_object.add_variable(
+    addspace, "Camera - Qaulity Factor [25-50]", 30
+)
+brightness_server = camera_control_object.add_variable(
+    addspace, "Camera - Brightness Control [0-255]", 137
+)
+contrast_server = camera_control_object.add_variable(
+    addspace, "Camera - Contrast Control [0-255]", 154
+)
+red_gain_server = camera_control_object.add_variable(
+    addspace, "Camera - Red Gain [0-255]", 122
+)
+green_gain_server = camera_control_object.add_variable(
+    addspace, "Camera - Green Gain [0-255]", 102
+)
+blue_gain_server = camera_control_object.add_variable(
+    addspace, "Camera - Blue Gain [0-255]", 138
+)
 
-command_control_server = camera_control_object.add_variable(addspace, "Vision Command Control", 0000)
-ip_address_server = camera_control_object.add_variable(addspace, "IP Address", "192.168.1.1")
+command_control_server = camera_control_object.add_variable(
+    addspace, "Vision Command Control", 0000
+)
+ip_address_server = camera_control_object.add_variable(
+    addspace, "IP Address", "192.168.1.1"
+)
 
-horizontal_resolution_server = camera_control_object.add_variable(addspace, "Camera - Horizontal Resolution", "1280")
-vertical_resolution_server = camera_control_object.add_variable(addspace, "Camera - Vertical Resolution", "720")
+horizontal_resolution_server = camera_control_object.add_variable(
+    addspace, "Camera - Horizontal Resolution", "1280"
+)
+vertical_resolution_server = camera_control_object.add_variable(
+    addspace, "Camera - Vertical Resolution", "720"
+)
 
 start_server.set_writable()
 stop_server.set_writable()
@@ -68,7 +88,7 @@ try:
         ip_address_server_value = ip_address_server.get_value()
         command_control_server_value = command_control_server.get_value()
         quality_factor_server_value = quality_factor_server.get_value()
-        if quality_factor_server_value < 25 or quality_factor_server_value > 50 :
+        if quality_factor_server_value < 25 or quality_factor_server_value > 50:
             quality_factor_server.set_value(30)
         brightness_server_value = brightness_server.get_value()
         contrast_server_value = contrast_server.get_value()
@@ -99,7 +119,7 @@ try:
             ip_address_client.set_value(ip_address_server_value)
             start_client.set_value(1111)
             start_server.set_value(0000)
-        
+
         # Check for Camera Stop command from UAExpert
         if stop_server_value == 1111:
             print("Sending the command to stop the video stream\n")
@@ -126,4 +146,3 @@ finally:
     server.stop()
     client.disconnect()
     print("OPC Server stopped")
-
