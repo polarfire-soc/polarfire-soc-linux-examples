@@ -7,39 +7,42 @@ from flask import jsonify
 from app import app
 
 HOSTNAME = os.uname()[1]
-FILESTUB = '/var/lib/collectd/'+HOSTNAME+'/sensors-microchip,pac1934/{}-channel{}*'
+FILESTUB = "/var/lib/collectd/" + HOSTNAME + "/sensors-microchip,pac1934/{}-channel{}*"
 
 NUMCHANNELS = 4
 
-@app.route('/')
 
+@app.route("/")
 def index():
     return chart()
 
-@app.route('/about')
+
+@app.route("/about")
 def about():
     return render_template("about.html")
+
 
 def getreader(pattern):
     csvfiles = glob.glob(pattern)
 
     if len(csvfiles) == 0:
-        return 1, None, None # no files
+        return 1, None, None  # no files
 
     csvfilename = max(csvfiles, key=os.path.getctime)
     if not csvfilename:
-        return 1, None, None # no files
+        return 1, None, None  # no files
 
-    csvfile = open(csvfilename, 'r')
+    csvfile = open(csvfilename, "r")
     if not csvfile:
-        return 2, None, None # can't open file
+        return 2, None, None  # can't open file
 
     reader = csv.reader(csvfile, skipinitialspace=True)
     if not reader:
         csvfile.close()
-        return 3, None, None # file corrupt?
+        return 3, None, None  # file corrupt?
 
     return 0, reader, csvfile
+
 
 def handlechannel(pattern):
     reading = []
@@ -53,7 +56,7 @@ def handlechannel(pattern):
 
     try:
         for row in reader:
-            if row[0] == 'epoch':
+            if row[0] == "epoch":
                 continue
             thisreadinghistory.append({str((int(float(row[0])))): row[1]})
         csvfile.close()
@@ -65,25 +68,29 @@ def handlechannel(pattern):
 
     return 0, reading, readinghistory
 
+
 def handlevoltagechannel(i):
-    voltagepattern = FILESTUB.format('voltage', i)
+    voltagepattern = FILESTUB.format("voltage", i)
     return handlechannel(voltagepattern)
 
+
 def handlecurrentchannel(i):
-    currentpattern = FILESTUB.format('current', i)
+    currentpattern = FILESTUB.format("current", i)
     return handlechannel(currentpattern)
 
+
 def makemsg(status):
-    if(status == 1):
+    if status == 1:
         return "no iio files found"
-    elif(status == 2):
+    elif status == 2:
         return "can't open iio file"
-    elif(status == 3):
+    elif status == 3:
         return "iio file is not csv"
-    elif(status == 4):
+    elif status == 4:
         return "iio file may be corrupt"
     else:
         return "unknown error"
+
 
 def makereadings(current, currenthistory, voltage, voltagehistory):
     readings = [
@@ -93,7 +100,7 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "voltage": voltage[0],
             "current": current[0],
             "voltage-history": voltagehistory[0],
-            "current-history": currenthistory[0]
+            "current-history": currenthistory[0],
         },
         {
             "channel": "VDDA25",
@@ -101,7 +108,7 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "voltage": voltage[1],
             "current": current[1],
             "voltage-history": voltagehistory[1],
-            "current-history": currenthistory[1]
+            "current-history": currenthistory[1],
         },
         {
             "channel": "VDD25",
@@ -109,7 +116,7 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "voltage": voltage[2],
             "current": current[2],
             "voltage-history": voltagehistory[2],
-            "current-history": currenthistory[2]
+            "current-history": currenthistory[2],
         },
         {
             "channel": "VDDA",
@@ -117,14 +124,14 @@ def makereadings(current, currenthistory, voltage, voltagehistory):
             "voltage": voltage[3],
             "current": current[3],
             "voltage-history": voltagehistory[3],
-            "current-history": currenthistory[3]
-        }
+            "current-history": currenthistory[3],
+        },
     ]
 
     return readings
 
 
-@app.route('/chart')
+@app.route("/chart")
 def chart():
     currenthistory = []
     voltagehistory = []
@@ -140,14 +147,18 @@ def chart():
         current.append(val)
         currenthistory.append(history)
         status, val, history = handlevoltagechannel(i)
-        if status !=0:
+        if status != 0:
             return render_template("waiting.html", msg=makemsg(status))
         voltage.append(val)
         voltagehistory.append(history)
 
-    return render_template("chart.html", readings=makereadings(current, currenthistory, voltage, voltagehistory))
+    return render_template(
+        "chart.html",
+        readings=makereadings(current, currenthistory, voltage, voltagehistory),
+    )
 
-@app.route('/_refresh', methods=['GET'])
+
+@app.route("/_refresh", methods=["GET"])
 def _refresh():
     currenthistory = []
     voltagehistory = []
@@ -163,9 +174,11 @@ def _refresh():
         current.append(val)
         currenthistory.append(history)
         status, val, history = handlevoltagechannel(i)
-        if status !=0:
+        if status != 0:
             return jsonify(readings="error: {}".format(status))
         voltage.append(val)
         voltagehistory.append(history)
 
-    return jsonify(readings=makereadings(current, currenthistory, voltage, voltagehistory))
+    return jsonify(
+        readings=makereadings(current, currenthistory, voltage, voltagehistory)
+    )
