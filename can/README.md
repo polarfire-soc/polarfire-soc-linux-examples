@@ -4,21 +4,27 @@ uio-can-example is a simple example of using CAN via UIO from Linux user-space.
 
 The example expects to find a CAN device mapped to /dev/uioX.
 
-It initialises the CAN device, places it into loopback mode, puts a single message in a TX buffer and sends it.
+It initialises the CAN device, places it into loopback mode, puts a single
+message in a TX buffer and sends it.
 
-It waits for an RX_MSG interrupt and extracts the message from an RX buffer and prints it.
+It waits for an RX_MSG interrupt and extracts the message from an RX buffer and
+prints it.
 
 Run the example program, first build it by running make:
-```
+
+```sh
 make
 ```
+
 Once built, it can be run:
 
-```
+```sh
 ./uio-can-example
 ```
+
 A successful execution should look like:
-```
+
+```text
 locating device for can@2010c000
 located /dev/uio1
 opened /dev/uio1 (r,w)
