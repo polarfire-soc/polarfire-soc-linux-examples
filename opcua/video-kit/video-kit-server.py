@@ -136,14 +136,11 @@ try:
             subprocess.call(args, shell=True)
             # program Horizontal Resolution value
             args = (
-                "devmem2 0x40001078 w "
-                + str(horizontal_resolution_value)
-                + " >/dev/null"
-            )
-            subprocess.call(args, shell=True)
-            # program Vertical Resolution value
-            args = (
-                "devmem2 0x4000107C w " + str(vertical_resolution_value) + " >/dev/null"
+                 "/usr/bin/v4l2-ctl -d /dev/video0 --set-fmt-video=width="
+                 + str(horizontal_resolution_value)
+                 + "--set-fmt-video=height="
+                 + str(vertical_resolution_value)
+                 + " >/dev/null"
             )
             subprocess.call(args, shell=True)
             command_control.set_value(0000)
