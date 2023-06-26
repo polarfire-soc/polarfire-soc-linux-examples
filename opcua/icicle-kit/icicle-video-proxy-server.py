@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 import sys
-import time, os, locale
+import time, os
 from datetime import datetime, timedelta
 from opcua import ua, Server, Client
-
-# Set Locale
-locale.setlocale(locale.LC_ALL, "en_US")
-t = time.strftime("%a, %d %b %Y %H:%M:%S")
-print(t)  # works fine: Fr, 05 Jun 2020 14:37:02
 
 PORT = "4840"
 if sys.argv[1:]:
