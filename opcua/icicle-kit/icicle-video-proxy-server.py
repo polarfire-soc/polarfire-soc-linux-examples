@@ -71,7 +71,7 @@ vertical_resolution_server.set_writable()
 server.start()
 print("ICICLE Kit - OPC server started at {}".format(url))
 
-url = "opc.tcp://10.60.132.159:4840"
+url = "opc.tcp://192.168.1.1:4840"
 client = Client(url)
 try:
     client.connect()
