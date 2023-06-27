@@ -138,7 +138,7 @@ try:
             args = (
                  "/usr/bin/v4l2-ctl -d /dev/video0 --set-fmt-video=width="
                  + str(horizontal_resolution_value)
-                 + "--set-fmt-video=height="
+                 + ",height="
                  + str(vertical_resolution_value)
                  + " >/dev/null"
             )
