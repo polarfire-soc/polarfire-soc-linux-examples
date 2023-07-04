@@ -368,4 +368,3 @@ non-cached via write-combine buffer.
 | DDRC      |     16 MB   |  89.96 MBps    | 428.48 MBps |        5x        |
 | DDR-NC    |     32 MB   |  16.99 MBps    | 358.69 MBps |        21x       |
 | DDR-NC-WCB|     32 MB   |  29.42 MBps    | 358.74 MBps |        12x       |
-
