@@ -15,7 +15,7 @@ creating a /dev/rpmsgX device.
 For more information on RPMsg protocol, please refer to the
 [PolarFire SoC RPMsg documentation][1].
 
-[1]: https://github.com/polarfire-soc/polarfire-soc-documentation/tree/master/asymmetric-multiprocessing/rpmsg.md
+[1]: https://mi-v-ecosystem.github.io/redirects/asymmetric-multiprocessing_rpmsg
 
 ## Pre-requisites
 
@@ -23,7 +23,7 @@ This application should be run on a PolarFire SoC configured in AMP mode.
 Instructions on how to run a Linux + FreeRTOS AMP configuration using Yocto or
 Buildroot can be found in the [PolarFire SoC AMP documentation][2].
 
-[2]: https://github.com/polarfire-soc/polarfire-soc-documentation/tree/master/asymmetric-multiprocessing/amp.md
+[2]: https://mi-v-ecosystem.github.io/redirects/asymmetric-multiprocessing_amp
 
 ## Building the Application
 
