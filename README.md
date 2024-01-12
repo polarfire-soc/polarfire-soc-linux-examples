@@ -15,6 +15,6 @@ PolarFire SoC Icicle Kit (MPFS250T-FCVG484EES)
 
 Before running any of these example applications, set up the Icicle kit and
 ensure Linux can be booted as explained in the
-[Updating PolarFire SoC Icicle-Kit FPGA Design and Linux Image][1] document.
+[PolarFire SoC Icicle-Kit User Guide][1] document.
 
-[1]: https://github.com/polarfire-soc/polarfire-soc-documentation/blob/master/boards/mpfs-icicle-kit-es/updating-icicle-kit/updating-icicle-kit-design-and-linux.md
+[1]: https://mi-v-ecosystem.github.io/redirects/updating-icicle-kit_updating-icicle-kit-design-and-linux
