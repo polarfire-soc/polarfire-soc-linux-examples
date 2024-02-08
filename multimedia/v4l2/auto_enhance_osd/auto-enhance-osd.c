@@ -31,7 +31,6 @@
 
 #define MCHP_GAIN_AVERAGE		125
 #define MCHP_GAIN_MIN			5
-#define MCHP_GAIN_INIT			80
 #define MCHP_HYSTERESIS_GAIN		4
 
 #define IOCTL_TRIES			3
@@ -60,6 +59,19 @@ int set_camera_gain(int fd, int gain)
 	}
 
 	return gain;
+}
+
+int get_camera_gain(int fd)
+{
+	struct v4l2_control ctrl = {0};
+
+	ctrl.id = V4L2_CID_ANALOGUE_GAIN;
+	if (-1 == xioctl(fd, VIDIOC_G_CTRL, &ctrl)) {
+		perror("setting V4L2_CID_ANALOGUE_GAIN");
+		return -1;
+	}
+
+	return ctrl.value;
 }
 
 int get_intensity_average(int fd)
@@ -111,9 +123,9 @@ static void mchp_dscmi_gain_cal(int fd, uint32_t total_sum)
 	uint32_t total_average;
 	const uint16_t hs_threshold_high = (MCHP_GAIN_AVERAGE + MCHP_HYSTERESIS_GAIN);
 	const uint16_t hs_threshold_low = (MCHP_GAIN_AVERAGE - MCHP_HYSTERESIS_GAIN);
-	static uint16_t in_gain = MCHP_GAIN_INIT;
 	static uint16_t last_step;
 	uint16_t step;
+	uint16_t in_gain;
 
 	total_average = total_sum / div;
 
@@ -131,6 +143,10 @@ static void mchp_dscmi_gain_cal(int fd, uint32_t total_sum)
 		else
 			step = 0;
 
+	if (!step)
+		return;
+
+	in_gain = get_camera_gain(fd);
 	in_gain = in_gain + step;
 
 	if (in_gain < MCHP_GAIN_MIN)
@@ -191,8 +207,6 @@ int main(int argc, char *argv[])
 	} else {
 		printf("opened %s (r,w)\n", devname);
 	}
-
-	set_camera_gain(video0, 80);
 
 	while (1) {
 		if (compression_ratio_loop) {
