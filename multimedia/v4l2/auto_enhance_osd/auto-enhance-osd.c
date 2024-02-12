@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 				return ret;
 		}
 
-		usleep(500000);
+		usleep(100000);
 	}
 
 	close(video0);
