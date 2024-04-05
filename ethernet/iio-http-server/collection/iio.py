@@ -17,9 +17,9 @@ if "COLLECTD_INTERVAL" in os.environ.keys():
 else:
     INTERVAL = 60
 
-LOGDIR = "/var/lib/collectd/" + HOSTNAME + "/sensors-microchip,pac1934/"
+LOGDIR = "/var/lib/collectd/" + HOSTNAME + "/sensors-pac1934/"
 SENSORDIR = "/sys/bus/iio/devices/iio:device0/"
-SENSORNAME = "microchip,pac1934"
+SENSORNAME = "pac1934"
 MAXLINES = 50
 MINLINES = 30
 
@@ -78,10 +78,9 @@ if os.path.isfile(SENSORDIR + "name"):
     current = [0, 0, 0, 0]
     current_scale = [0, 0, 0, 0]
     voltage = [0, 0, 0, 0]
-    # Voltage scale is not an array
-    voltage_scale = 0
+    voltage_scale = [0, 0, 0, 0]
     for i in range(4):
-        fd = open(SENSORDIR + "in_current{}_raw".format(i))
+        fd = open(SENSORDIR + "in_current{}_raw".format(i+1))
         if fd:
             current[i] = fd.read()
             fd.close()
@@ -89,7 +88,7 @@ if os.path.isfile(SENSORDIR + "name"):
         else:
             sys.exit(0)
 
-        fd = open(SENSORDIR + "in_current{}_scale".format(i))
+        fd = open(SENSORDIR + "in_current{}_scale".format(i+1))
         if fd:
             current_scale[i] = fd.read()
             fd.close()
@@ -99,7 +98,7 @@ if os.path.isfile(SENSORDIR + "name"):
 
         current[i] = str(float(current[i]) * float(current_scale[i]))
 
-        fd = open(SENSORDIR + "in_voltage{}_raw".format(i))
+        fd = open(SENSORDIR + "in_voltage{}_raw".format(i+1))
         if fd:
             voltage[i] = fd.read()
             fd.close()
@@ -107,15 +106,15 @@ if os.path.isfile(SENSORDIR + "name"):
         else:
             sys.exit(0)
 
-        fd = open(SENSORDIR + "in_voltage_scale")
+        fd = open(SENSORDIR + "in_voltage{}_scale".format(i+1))
         if fd:
-            voltage_scale = fd.read()
+            voltage_scale[i] = fd.read()
             fd.close()
-            voltage_scale = voltage_scale.strip()
+            voltage_scale[i] = voltage_scale[i].strip()
         else:
             sys.exit(0)
 
-        voltage[i] = str(float(voltage[i]) * float(voltage_scale))
+        voltage[i] = str(float(voltage[i]) * float(voltage_scale[i]))
 
         # convert from mV to V
         voltage[i] = str(float(voltage[i]) / 1000)

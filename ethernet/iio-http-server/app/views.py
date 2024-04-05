@@ -7,7 +7,7 @@ from flask import jsonify
 from app import app
 
 HOSTNAME = os.uname()[1]
-FILESTUB = "/var/lib/collectd/" + HOSTNAME + "/sensors-microchip,pac1934/{}-channel{}*"
+FILESTUB = "/var/lib/collectd/" + HOSTNAME + "/sensors-pac1934/{}-channel{}*"
 
 NUMCHANNELS = 4
 
