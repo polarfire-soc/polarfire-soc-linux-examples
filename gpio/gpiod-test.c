@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 /*
- *	GPIOD example -- blink PolarFire SoC Icicle kit LEDs and read SW2 switch state
+ *	GPIOD example -- read SW2 switch state
  *
  *	Copyright (c) 2021 Microchip Inc.
  *
@@ -17,10 +17,6 @@
 
 #include <gpiod.h>
 
-#define led_GPIO16 16
-#define led_GPIO17 17
-#define led_GPIO18 18
-#define led_GPIO19 19
 #define sw2_GPIO30 30
 
 /* libgpiod public API */
@@ -80,77 +76,11 @@ int main()
 
 	while(1){
 	    printf("\n\t# Choose one of  the following options:");
-	    printf("\n\tEnter '1' to blink LEDs for 20 seconds (GPIO16)1, (GPIO17)2, (GPIO18)3 and (GPIO19)4");
-	    printf("\n\tEnter '2' to read the state of SW2 connected to GPIO30");
+	    printf("\n\tEnter '1' to read the state of SW2 connected to GPIO30");
 	    printf("\n\tEnter 'any key' to exit: ");
 		
 		scanf("%c%*c",&runcmd);
-		if(runcmd=='1'){
-			struct gpiod_line *led16;
-			struct gpiod_line *led17;
-			struct gpiod_line *led18;
-			struct gpiod_line *led19;
-			
-			/* open the GPIO line */
-			led16 = gpiod_chip_get_line(chip, led_GPIO16);
-			if (!led16) {
-				perror("led16 Get line failed\n");
-				goto close_chip;
-			}
-			led17 = gpiod_chip_get_line(chip, led_GPIO17);
-			if (!led17) {
-				perror("led17 Get line failed\n");
-				goto close_chip;
-			}
-			led18 = gpiod_chip_get_line(chip, led_GPIO18);
-			if (!led18) {
-				perror("led18 Get line failed\n");
-				goto close_chip;
-			}
-			led19 = gpiod_chip_get_line(chip, led_GPIO19);
-			if (!led19) {
-				perror("led19 Get line failed\n");
-				goto close_chip;
-			}
-	
-		 
-			/* config as output and set a description */
-			gpiod_line_request_output(led16, "gpio-led16", GPIOD_LINE_ACTIVE_STATE_HIGH);
-			gpiod_line_request_output(led17, "gpio-led17", GPIOD_LINE_ACTIVE_STATE_HIGH);
-			gpiod_line_request_output(led18, "gpio-led18", GPIOD_LINE_ACTIVE_STATE_HIGH);
-			gpiod_line_request_output(led19, "gpio-led19", GPIOD_LINE_ACTIVE_STATE_HIGH);
-		
-			
-			counter = 5;
-			int line_value = 0;
-			printf("\n Check that LEDs are blinking, every 2 seconds \n");
-			while(counter--){    
-			    /* Set */
-			    line_value = 1;
-			    gpiod_line_set_value(led16, line_value);
-			    gpiod_line_set_value(led17, line_value);
-			    gpiod_line_set_value(led18, line_value);
-			    gpiod_line_set_value(led19, line_value);
-			    printf("\n LED's ON \n");
-			    sleep(2);
-			    
-			    /* Clear */
-			    line_value = 0;			    
-			    gpiod_line_set_value(led16, line_value);
-			    gpiod_line_set_value(led17, line_value);
-			    gpiod_line_set_value(led18, line_value);
-			    gpiod_line_set_value(led19, line_value);
-			    printf("\n LED's Off \n");
-			    sleep(2);
-			}
-			
-			gpiod_line_release(led16);
-			gpiod_line_release(led17);
-			gpiod_line_release(led18);
-			gpiod_line_release(led19);
-
-		}
-		else if(runcmd == '2') {
+		if(runcmd=='1') {
 			struct gpiod_line *sw2_30;
 			sw2_30 = gpiod_chip_get_line(chip, sw2_GPIO30);
 			gpiod_line_request_input(sw2_30, "gpio30-sw2");

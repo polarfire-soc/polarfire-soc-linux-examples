@@ -12,8 +12,11 @@ refer to the [Icicle Kit Reference Design][1].
 
 ### GPIO Connection Details
 
-The User LEDs (LED 1, 2, 3 and 4) are connected to GPIO#16/17/18/19 and are
-used by the test application 'gpiod-test' to verify the LED's blink.
+The User LEDs (LED 1, 2, 3 and 4) are connected to GPIO#16/17/18/19. These
+LEDs can be controlled from sysfs in /sys/class/leds/. See the [Linux kernel
+LED documentation][2] for more information.
+
+[2]: https://docs.kernel.org/leds/leds-class.html
 
 The switches (SW2 / SW3) are connected to GPIO#30/31 and are used to verify
 the state of the pin in the 'gpiod-test' application and also the status change
@@ -34,8 +37,7 @@ Type the `./gpiod-test` command and Press Enter to execute the application.
 ```text
 root@icicle-kit-es:/opt/microchip/gpio# ./gpiod-test
         # Choose one of  the following options:
-        Enter 1 to blink LEDs for 20 seconds, LED's 1,2,3,4
-        Enter 2 to verify Read SW2 value, connected to GPIO30"
+        Enter 1 to verify Read SW2 value, connected to GPIO30"
         Press any key to exit
 ```
 
