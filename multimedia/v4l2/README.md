@@ -22,9 +22,28 @@ The bayer pipeline consists of the following IP's (exposing the nodes from the c
 
 Where /dev/video0 is responsible for capturing the images and /dev/media0 for changing the resolution and format.
 
-## Command to load bayer format pipeline
+## Steps To Load Bayer Modular Pipeline
 
-Stop at U-boot prompt and run the below command to load the bayer pipeline
+- `Note`: If FlashPro Express programming job file (taken from [Video Kit reference design](https://mi-v-ecosystem.github.io/redirects/releases-video-kit-reference-design)) is version v2024.06 or above, there is no need to follow the below steps, as the devicetree overlay for the modular pipeline will be automatically loaded from flash while booting Linux.
+
+- To load the Bayer modular pipeline, stop at the U-Boot prompt (while booting, press any key on the keyboard to stop). The U-Boot console output should look as shown below
+
+```sh
+CPU:   rv64imafdc
+Model: Microchip PolarFire-SoC Video Kit
+DRAM:  1 GiB (effective 2.8 GiB)
+Core:  49 devices, 11 uclasses, devicetree: separate
+MMC:   mmc@20008000: 0
+Loading Environment from FAT... OK
+In:    serial@20100000
+Out:   serial@20100000
+Err:   serial@20100000
+Net:   eth0: ethernet@20110000
+Hit any key to stop autoboot:  0
+RISC-V #
+```
+
+- Run the commands below:
 
 ```sh
 load mmc 0:1 ${scriptaddr} fitImage;
@@ -189,4 +208,3 @@ Setting up format SRGGB10_1X10 1920x1080 on pad 60001000.csi2rx/1
 Format set: SRGGB8_1X8 1920x1080
 <<<<<<<<<<
 root@mpfs-video-kit:~#
-
