@@ -24,22 +24,30 @@ fi
 # Trash existing device tree overlay in case the rest of the process fails:
 flash_erase /dev/mtd0 0 16
 
-# Get device tree overlay size
-dtbo_size=$(stat -c %s /lib/firmware/mpfs_dtbo.spi)
+# Initiate FPGA update for dtbo
+echo 1 > /sys/class/firmware/mpfs-auto-update/loading
 
 # Write device tree overlay
-dd if=/lib/firmware/mpfs_dtbo.spi of=/dev/mtd0 bs=1 seek=$((0x400)) count="$dtbo_size" status=progress
+cat /lib/firmware/mpfs_dtbo.spi > /sys/class/firmware/mpfs-auto-update/data
+
+# Signal completion for dtbo load
+echo 0 > /sys/class/firmware/mpfs-auto-update/loading
+
+while [ "$(cat /sys/class/firmware/mpfs-auto-update/status)" != "idle" ]; do
+    # Do nothing, just keep checking
+    sleep 1
+done
 
 # Fake the presence of a golden image for now.
 dd if=/dev/zero of=/dev/mtd0 count=1 bs=4
 
-# Initiate FPGA update.
+# Initiate FPGA update for bitstream
 echo 1 > /sys/class/firmware/mpfs-auto-update/loading
 
 # Write the firmware image to the data sysfs file
 cat /lib/firmware/mpfs_bitstream.spi > /sys/class/firmware/mpfs-auto-update/data
 
-# Signal completion
+# Signal completion for bitstream load
 echo 0 > /sys/class/firmware/mpfs-auto-update/loading
 
 while [ "$(cat /sys/class/firmware/mpfs-auto-update/status)" != "idle" ]; do
