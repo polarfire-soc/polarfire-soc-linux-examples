@@ -26,14 +26,14 @@ root@mpfs-video-kit:/opt/microchip/japll-pi-controller# vim /opt/microchip/japll
 Tune the parameters according to your usecase and Solution requirements:
 
 ```text
-     k_proportional     0.4                 -> proportional constant
-     k_integral         0.8                 -> integral constant
-     delta_time         0.5                 -> time frame between two packets
+     k_proportional     0.9                 -> proportional constant
+     k_integral         0.9                 -> integral constant
+     delta_time         0.125               -> time frame between two packets
      set_point          0                   -> ideal value for tuning ppb/freq
      pi_enable          1                   -> enable PI controller
      japll_wr_enable    1                   -> enable write operation for tuned PPB value to JAPLL registers
      board_ref_clk_freq 125.00              -> External reference clock from which the TSU clock will be derived
-     eth_interface      eth0                -> ethernet driver interface for input to ptp4l command
+     eth_interface      eth1                -> ethernet driver interface for input to ptp4l command
      ptp4l_config       ./configs/gPTP.cfg  -> filename along with path for input to ptp4l command
 ```
 
