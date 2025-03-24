@@ -21,4 +21,4 @@ ip link add link eth1 name eth1.13 type vlan id 13 egress-qos-map 0:5
 ip link set dev eth1.13 up
 ip addr add 192.168.13.2/24 dev eth1.13
 ifconfig eth1.13 mtu 1400
-cd /opt/microchip/japll-pi-controller/ && ./japll-pi & > /dev/null 2>&1 &
+cd /opt/microchip/japll-pi-controller/ && ./japll-pi > /dev/null 2>&1 &
