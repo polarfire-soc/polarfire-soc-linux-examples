@@ -15,8 +15,8 @@ if [ $# -eq 0 ]; then
     fi
 
     if [ ! -e $dtbo_location ]; then
-  echo "No dtbo file found."
-  exit 1
+        echo "No dtbo file found."
+        exit 1
     fi
 elif [ $# -eq 1 ]; then
     if [ ! -e "$1" ]; then
