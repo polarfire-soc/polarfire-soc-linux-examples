@@ -13,22 +13,32 @@ Please follow the instructions from the "[Re-programming the FPGA from Linux](ht
 
 ### Buildroot Support
 
-Once you have followed the above guide and are ready to perform autoupdate you can use the
-script provided to carry out the autoupdate.
+Once you have followed the above guide and are ready to perform auto update you can use the
+script provided to carry out the auto update.
 Ensure you have a bitstream with a `.spi` file extension which contains a design version higher
 than the design version programmed in the device. For example `foo.spi`.
 
 On your Linux host development computer, copy the bitstream to your board, replacing
-<path/to/your/buildroot-external> with the path to your board's root file system.
-    ```cp ./<path/to/your/buildroot-external>/board/rootfs-overlay/lib/firmware/```
+`/path/to/your/buildroot-external/` with the path to your board's root file system and
+`mpfs_bitstream.spi` with the name of the bitstream produced by Libero.
+
+```sh
+cp ./mpfs_bitstream.spi /path/to/your/buildroot-external/board/rootfs-overlay/lib/firmware/
+```
 
 To apply these changes to your image, make sure to re-build it with:
-    ```make```
+
+```sh
+make
+```
 
 Then, re-flash your image - to ensure you have the necessary firmware files.
 
 On your board, initiate the reprogramming of the FPGA with your gateware bitstream:
-    ```./update-gateware.sh```
+
+```sh
+./update-gateware.sh /lib/firmware/mpfs_bitstream.spi
+```
 
 Wait for a couple of minutes for the board to reprogram itself.
 
