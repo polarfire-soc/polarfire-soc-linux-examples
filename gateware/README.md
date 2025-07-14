@@ -31,3 +31,41 @@ On your board, initiate the reprogramming of the FPGA with your gateware bitstre
     ```./update-gateware.sh```
 
 Wait for a couple of minutes for the board to reprogram itself.
+
+## Script Arguments
+
+Due to supporting several different boards and the variety of ways that gateware
+files might be loaded onto a board, the script can take several arguments.
+
+The default behaviour, no arguments, expects that there will be both a design
+info file and bitstream file located in /lib/firmware with the names
+`mpfs_dtbo.spi` and `mpfs_bitstream.spi`, and it will program both. For example:
+
+```sh
+./update-gateware.sh
+```
+
+A single argument can be provided and if this is a directory, the script expects
+to find `mpfs_dtbo.spi` and `mpfs_bitstream.spi` there, and as with the no
+argument case, both files will be programmed to the flash. For example:
+
+```sh
+./update-gateware.sh /lib/firmware/
+```
+
+If the single argument is a path to a file, then that file must be the bitstream
+file. This supports use cases where there is no design info file to be programmed.
+The name of the file is not mandated to be `mpfs_bitstream.spi` in this case. For
+example:
+
+```sh
+./update-gateware.sh ./mpfs_bitstream_v5.spi
+```
+
+Finally, the script supports passing both bitstream and design info file paths.
+As with the previous case, there are no mandatory file names. The first file is
+expected to be the bitstream, and the second the design info file. For example:
+
+```sh
+./update-gateware.sh ./mpfs_bitstream_v5.spi ./mpfs_dtbo_v5.spi
+```
